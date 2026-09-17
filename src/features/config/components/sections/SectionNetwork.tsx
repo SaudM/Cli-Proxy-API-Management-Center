@@ -91,7 +91,7 @@ export function SectionNetwork({
               label={t('config_management.visual.sections.network.request_retry')}
               topExtra={<SponsorHintSpacer />}
               type="number"
-              placeholder="3"
+              placeholder="2"
               value={values.requestRetry}
               onChange={(e) => onChange({ requestRetry: e.target.value })}
               disabled={disabled}
@@ -140,7 +140,7 @@ export function SectionNetwork({
               label={t('config_management.visual.sections.network.credential_limits_rpm')}
               type="number"
               min={0}
-              placeholder="0"
+              placeholder="30"
               value={values.credentialLimitsRpm}
               onChange={(e) => onChange({ credentialLimitsRpm: e.target.value })}
               disabled={disabled}
@@ -153,7 +153,7 @@ export function SectionNetwork({
               label={t('config_management.visual.sections.network.credential_limits_tpm')}
               type="number"
               min={0}
-              placeholder="0"
+              placeholder="2000000"
               value={values.credentialLimitsTpm}
               onChange={(e) => onChange({ credentialLimitsTpm: e.target.value })}
               disabled={disabled}
@@ -168,7 +168,7 @@ export function SectionNetwork({
               )}
               type="number"
               min={0}
-              placeholder="0"
+              placeholder="4"
               value={values.credentialLimitsMaxConcurrent}
               onChange={(e) => onChange({ credentialLimitsMaxConcurrent: e.target.value })}
               disabled={disabled}
@@ -183,7 +183,7 @@ export function SectionNetwork({
               label={t('config_management.visual.sections.network.credential_limits_rpd')}
               type="number"
               min={0}
-              placeholder="0"
+              placeholder="3000"
               value={values.credentialLimitsRpd}
               onChange={(e) => onChange({ credentialLimitsRpd: e.target.value })}
               disabled={disabled}
@@ -196,7 +196,7 @@ export function SectionNetwork({
               label={t('config_management.visual.sections.network.credential_limits_tpd')}
               type="number"
               min={0}
-              placeholder="0"
+              placeholder="40000000"
               value={values.credentialLimitsTpd}
               onChange={(e) => onChange({ credentialLimitsTpd: e.target.value })}
               disabled={disabled}
@@ -209,7 +209,7 @@ export function SectionNetwork({
               label={t('config_management.visual.sections.network.credential_limits_max_sessions')}
               type="number"
               min={0}
-              placeholder="0"
+              placeholder="6"
               value={values.credentialLimitsMaxSessions}
               onChange={(e) => onChange({ credentialLimitsMaxSessions: e.target.value })}
               disabled={disabled}
@@ -247,7 +247,7 @@ export function SectionNetwork({
               label={t('config_management.visual.sections.network.credential_limits_active_hours_jitter_minutes')}
               type="number"
               min={0}
-              placeholder="0"
+              placeholder="45"
               value={values.credentialLimitsActiveHoursJitterMinutes}
               onChange={(e) => onChange({ credentialLimitsActiveHoursJitterMinutes: e.target.value })}
               disabled={disabled}
@@ -261,7 +261,7 @@ export function SectionNetwork({
               type="number"
               min={0}
               max={50}
-              placeholder="0"
+              placeholder="15"
               value={values.credentialLimitsLimitJitterPercent}
               onChange={(e) => onChange({ credentialLimitsLimitJitterPercent: e.target.value })}
               disabled={disabled}

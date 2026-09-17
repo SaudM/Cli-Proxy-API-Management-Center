@@ -198,3 +198,15 @@ streaming:
     expect(getVisualConfigValidationErrors(values).redisUsageQueueRetentionSeconds).toBeUndefined();
   });
 });
+
+describe('fork defaults in the visual editor', () => {
+  test('stabilize-device-profile reads as on when the key is absent and off only when explicit', () => {
+    const absent = runVisualConfig('max-retry-interval: 10\n');
+    expect(absent.visualValues.claudeHeaderStabilizeDeviceProfile).toBe(true);
+    expect(parseYaml(absent.applyVisualChangesToYaml('max-retry-interval: 10\n'))).toEqual({
+      'max-retry-interval': 10,
+    });
+    const explicit = runVisualConfig('claude-header-defaults:\n  stabilize-device-profile: false\n');
+    expect(explicit.visualValues.claudeHeaderStabilizeDeviceProfile).toBe(false);
+  });
+});

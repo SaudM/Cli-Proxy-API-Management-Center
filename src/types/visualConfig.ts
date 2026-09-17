@@ -235,7 +235,7 @@ export const DEFAULT_VISUAL_VALUES: VisualConfigValues = {
   claudeHeaderOs: '',
   claudeHeaderArch: '',
   claudeHeaderTimeout: '',
-  claudeHeaderStabilizeDeviceProfile: false,
+  claudeHeaderStabilizeDeviceProfile: true,
   codexHeaderUserAgent: '',
   codexHeaderBetaFeatures: '',
   payloadDefaultRules: [],

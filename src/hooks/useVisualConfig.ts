@@ -1435,9 +1435,9 @@ export function useVisualConfig() {
           typeof claudeHeaderDefaults?.arch === 'string' ? claudeHeaderDefaults.arch : '',
         claudeHeaderTimeout:
           typeof claudeHeaderDefaults?.timeout === 'string' ? claudeHeaderDefaults.timeout : '',
-        claudeHeaderStabilizeDeviceProfile: Boolean(
-          claudeHeaderDefaults?.['stabilize-device-profile']
-        ),
+        // Absent key = fork default (on); only an explicit false switches it off.
+        claudeHeaderStabilizeDeviceProfile:
+          claudeHeaderDefaults?.['stabilize-device-profile'] !== false,
         codexHeaderUserAgent:
           typeof codexHeaderDefaults?.['user-agent'] === 'string'
             ? codexHeaderDefaults['user-agent']
