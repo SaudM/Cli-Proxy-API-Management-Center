@@ -1169,7 +1169,10 @@
           "pools_weight": "weight {{weight}} · ~{{percent}}%",
           "pools_stabilize_on": "stabilize-device-profile: on — each credential is pinned to one device identity",
           "pools_stabilize_off": "stabilize-device-profile: off — native clients may leak the proxy host's OS/arch",
-          "pools_yaml_hint": "Edit the lists in the YAML source (proxy-pool, claude-header-defaults.platform-pool); assignments update on reload."
+          "pools_yaml_hint": "Edit the lists in the YAML source (proxy-pool, claude-header-defaults.platform-pool); assignments update on reload.",
+          "pools_baseline": "Effective Claude Code baseline (used when the fields above are empty)",
+          "pools_baseline_builtin": "source: backend built-in, measured from the native client — no YAML pin needed; it follows backend upgrades",
+          "pools_baseline_config": "source: claude-header-defaults in YAML"
         },
         "network": {
           "title": "Network Configuration",
@@ -1222,6 +1225,7 @@
           "credential_limits_session_window_minutes_hint": "A session counts as active for this long after its last request. Empty = 15.",
           "credential_limits_active_hours": "Credential Active Hours",
           "credential_limits_active_hours_hint": "Daily window HH:MM-HH:MM in each credential's timezone (may wrap midnight, e.g. 08:30-01:00). Outside it a credential is skipped — with a single credential that means 429 until it opens, so enable this once you run two or more accounts. Empty = always on.",
+          "credential_limits_active_hours_placeholder": "always on",
           "credential_limits_active_hours_jitter_minutes": "Active Hours Jitter (minutes)",
           "credential_limits_active_hours_jitter_minutes_hint": "Shifts each credential's window edges by a stable per-credential, per-day offset within ±N minutes, so accounts do not switch on and off at the same instant.",
           "credential_limits_limit_jitter_percent": "Limit Jitter (%)",

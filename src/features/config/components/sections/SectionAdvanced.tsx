@@ -18,7 +18,8 @@ import {
   ToggleRow,
 } from '../fields/FieldPrimitives';
 import { PluginStoreAuthEditor } from '../blocks/PluginStoreAuthEditor';
-import { CredentialPoolsBlock } from '../blocks/CredentialPoolsBlock';
+import { CredentialPoolsView } from '../blocks/CredentialPoolsView';
+import { useCredentialPools } from '../../hooks/useCredentialPools';
 import { StringListEditor } from '../blocks/StringListEditor';
 
 const Icon = CONFIG_TAB_ICONS.advanced;
@@ -26,6 +27,18 @@ const Icon = CONFIG_TAB_ICONS.advanced;
 /** 06 高级与实验：插件源、供应商敏感词、签名缓存与请求头默认值。 */
 export function SectionAdvanced({ values, disabled, animateIn, onChange }: ConfigSectionProps) {
   const { t } = useTranslation();
+  // Empty Claude header fields fall back to the backend's measured baseline; show it
+  // as the placeholder so an untouched field still tells the operator what goes out.
+  const pools = useCredentialPools();
+  const baseline = pools.data?.deviceProfileDefaults;
+  const baselinePlaceholder = {
+    userAgent: baseline?.userAgent || 'claude-cli/2.1.274 (external, cli)',
+    packageVersion: baseline?.packageVersion || '0.112.1',
+    runtimeVersion: baseline?.runtimeVersion || 'v26.3.0',
+    os: baseline?.os || 'MacOS',
+    arch: baseline?.arch || 'arm64',
+    timeout: baseline?.timeout || '600',
+  };
 
   const handlePluginStoreSourcesChange = useCallback(
     (pluginStoreSources: string[]) => onChange({ pluginStoreSources }),
@@ -230,7 +243,7 @@ export function SectionAdvanced({ values, disabled, animateIn, onChange }: Confi
               <FieldAnchor fieldId="claudeHeaderUserAgent">
                 <Input
                   label={t('config_management.visual.sections.headers.user_agent')}
-                  placeholder="claude-cli/2.1.44 (external, sdk-cli)"
+                  placeholder={baselinePlaceholder.userAgent}
                   value={values.claudeHeaderUserAgent}
                   onChange={(e) => onChange({ claudeHeaderUserAgent: e.target.value })}
                   disabled={disabled}
@@ -239,7 +252,7 @@ export function SectionAdvanced({ values, disabled, animateIn, onChange }: Confi
               <FieldAnchor fieldId="claudeHeaderPackageVersion">
                 <Input
                   label={t('config_management.visual.sections.headers.package_version')}
-                  placeholder="0.74.0"
+                  placeholder={baselinePlaceholder.packageVersion}
                   value={values.claudeHeaderPackageVersion}
                   onChange={(e) => onChange({ claudeHeaderPackageVersion: e.target.value })}
                   disabled={disabled}
@@ -248,7 +261,7 @@ export function SectionAdvanced({ values, disabled, animateIn, onChange }: Confi
               <FieldAnchor fieldId="claudeHeaderRuntimeVersion">
                 <Input
                   label={t('config_management.visual.sections.headers.runtime_version')}
-                  placeholder="v24.3.0"
+                  placeholder={baselinePlaceholder.runtimeVersion}
                   value={values.claudeHeaderRuntimeVersion}
                   onChange={(e) => onChange({ claudeHeaderRuntimeVersion: e.target.value })}
                   disabled={disabled}
@@ -257,7 +270,7 @@ export function SectionAdvanced({ values, disabled, animateIn, onChange }: Confi
               <FieldAnchor fieldId="claudeHeaderOs">
                 <Input
                   label={t('config_management.visual.sections.headers.os')}
-                  placeholder="MacOS"
+                  placeholder={baselinePlaceholder.os}
                   value={values.claudeHeaderOs}
                   onChange={(e) => onChange({ claudeHeaderOs: e.target.value })}
                   disabled={disabled}
@@ -266,7 +279,7 @@ export function SectionAdvanced({ values, disabled, animateIn, onChange }: Confi
               <FieldAnchor fieldId="claudeHeaderArch">
                 <Input
                   label={t('config_management.visual.sections.headers.arch')}
-                  placeholder="arm64"
+                  placeholder={baselinePlaceholder.arch}
                   value={values.claudeHeaderArch}
                   onChange={(e) => onChange({ claudeHeaderArch: e.target.value })}
                   disabled={disabled}
@@ -275,7 +288,7 @@ export function SectionAdvanced({ values, disabled, animateIn, onChange }: Confi
               <FieldAnchor fieldId="claudeHeaderTimeout">
                 <Input
                   label={t('config_management.visual.sections.headers.timeout')}
-                  placeholder="600"
+                  placeholder={baselinePlaceholder.timeout}
                   value={values.claudeHeaderTimeout}
                   onChange={(e) => onChange({ claudeHeaderTimeout: e.target.value })}
                   disabled={disabled}
@@ -295,7 +308,14 @@ export function SectionAdvanced({ values, disabled, animateIn, onChange }: Confi
                 />
               </FieldAnchor>
             </FieldGrid>
-            <CredentialPoolsBlock />
+            {!pools.unsupported && (
+              <CredentialPoolsView
+                data={pools.data}
+                loading={pools.loading}
+                error={pools.error}
+                onReload={pools.reload}
+              />
+            )}
             <Divider />
             <FieldGroupHeading title={t('config_management.visual.sections.headers.codex_title')} />
             <FieldGrid>

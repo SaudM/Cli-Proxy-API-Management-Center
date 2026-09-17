@@ -21,6 +21,16 @@ const payload = {
     { os: 'Windows', arch: 'x64', weight: 2, assigned: 0 },
   ],
   'stabilize-device-profile': true,
+  'device-profile-defaults': {
+    user_agent: 'claude-cli/2.1.274 (external, cli)',
+    package_version: '0.112.1',
+    runtime_version: 'v26.3.0',
+    os: 'MacOS',
+    arch: 'arm64',
+    timeout: '600',
+    timezone: 'Asia/Tokyo',
+    sources: { user_agent: 'built-in', timeout: 'built-in', timezone: 'config', bogus: 'x' },
+  },
 };
 
 describe('credential pools', () => {
@@ -60,5 +70,37 @@ describe('credential pools', () => {
     expect(html).toContain('1 credential');
     expect(html).toContain('stabilize-device-profile: on');
     expect(html).not.toContain('redacted@');
+  });
+});
+
+describe('device profile defaults', () => {
+  test('normalizes the effective baseline and its sources', () => {
+    const pools = normalizeCredentialPools(payload);
+    expect(pools.deviceProfileDefaults).toEqual({
+      userAgent: 'claude-cli/2.1.274 (external, cli)',
+      packageVersion: '0.112.1',
+      runtimeVersion: 'v26.3.0',
+      os: 'MacOS',
+      arch: 'arm64',
+      timeout: '600',
+      timezone: 'Asia/Tokyo',
+      sources: { userAgent: 'built-in', timeout: 'built-in', timezone: 'config' },
+    });
+    expect(normalizeCredentialPools({ 'device-profile-defaults': { os: 'MacOS' } }).deviceProfileDefaults).toBeUndefined();
+  });
+
+  test('view renders the baseline line', async () => {
+    await i18n.changeLanguage('en');
+    const html = renderToStaticMarkup(
+      createElement(CredentialPoolsView, {
+        data: normalizeCredentialPools(payload),
+        loading: false,
+        error: null,
+        onReload: () => {},
+      })
+    );
+    expect(html).toContain('claude-cli/2.1.274 (external, cli)');
+    expect(html).toContain('Effective Claude Code baseline');
+    expect(html).toContain('backend built-in');
   });
 });

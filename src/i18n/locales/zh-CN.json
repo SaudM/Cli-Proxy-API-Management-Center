@@ -1164,7 +1164,10 @@
           "pools_weight": "权重 {{weight}} · 约 {{percent}}%",
           "pools_stabilize_on": "stabilize-device-profile：开 — 每个凭证钉在一套设备身份上",
           "pools_stabilize_off": "stabilize-device-profile：关 — 原生客户端可能泄露代理宿主机的 OS/arch",
-          "pools_yaml_hint": "列表在 YAML 源码里编辑（proxy-pool、claude-header-defaults.platform-pool），重载后自动重新分配。"
+          "pools_yaml_hint": "列表在 YAML 源码里编辑（proxy-pool、claude-header-defaults.platform-pool），重载后自动重新分配。",
+          "pools_baseline": "当前生效的 Claude Code 基线（上方字段留空时使用）",
+          "pools_baseline_builtin": "来源：后端内置，按真实客户端实测——无需在 YAML 里固定，随后端升级自动更新",
+          "pools_baseline_config": "来源：YAML 中的 claude-header-defaults"
         },
         "network": {
           "title": "网络配置",
@@ -1217,6 +1220,7 @@
           "credential_limits_session_window_minutes_hint": "会话在最后一次请求后保持活跃的时长。留空为 15。",
           "credential_limits_active_hours": "凭证作息窗口",
           "credential_limits_active_hours_hint": "按各凭证时区的每日窗口 HH:MM-HH:MM（可跨午夜，如 08:30-01:00）。窗口外凭证会被跳过——只有一个凭证时意味着窗口外返回 429，所以有两个以上账号再开。留空表示全天。",
+          "credential_limits_active_hours_placeholder": "全天（不限）",
           "credential_limits_active_hours_jitter_minutes": "作息边界抖动（分钟）",
           "credential_limits_active_hours_jitter_minutes_hint": "每个凭证每天的窗口边界按稳定偏移在 ±N 分钟内浮动，避免所有账号同一秒上下线。",
           "credential_limits_limit_jitter_percent": "限额抖动（%）",

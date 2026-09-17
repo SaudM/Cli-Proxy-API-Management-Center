@@ -1190,7 +1190,10 @@
           "pools_weight": "權重 {{weight}} · 約 {{percent}}%",
           "pools_stabilize_on": "stabilize-device-profile：開 — 每個憑證釘在一套裝置身分上",
           "pools_stabilize_off": "stabilize-device-profile：關 — 原生用戶端可能洩露代理主機的 OS/arch",
-          "pools_yaml_hint": "清單在 YAML 原始碼中編輯（proxy-pool、claude-header-defaults.platform-pool），重新載入後自動重新分配。"
+          "pools_yaml_hint": "清單在 YAML 原始碼中編輯（proxy-pool、claude-header-defaults.platform-pool），重新載入後自動重新分配。",
+          "pools_baseline": "目前生效的 Claude Code 基線（上方欄位留空時使用）",
+          "pools_baseline_builtin": "來源：後端內建，依真實用戶端實測——無需在 YAML 中固定，隨後端升級自動更新",
+          "pools_baseline_config": "來源：YAML 中的 claude-header-defaults"
         },
         "network": {
           "title": "網路設定",
@@ -1243,6 +1246,7 @@
           "credential_limits_session_window_minutes_hint": "工作階段在最後一次請求後保持活躍的時長。留空為 15。",
           "credential_limits_active_hours": "憑證作息視窗",
           "credential_limits_active_hours_hint": "依各憑證時區的每日視窗 HH:MM-HH:MM（可跨午夜，如 08:30-01:00）。視窗外憑證會被略過——只有一個憑證時代表視窗外回傳 429，所以有兩個以上帳號再開。留空表示全天。",
+          "credential_limits_active_hours_placeholder": "全天（不限）",
           "credential_limits_active_hours_jitter_minutes": "作息邊界抖動（分鐘）",
           "credential_limits_active_hours_jitter_minutes_hint": "每個憑證每天的視窗邊界依穩定偏移在 ±N 分鐘內浮動，避免所有帳號同一秒上下線。",
           "credential_limits_limit_jitter_percent": "限額抖動（%）",

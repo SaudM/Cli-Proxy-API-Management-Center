@@ -222,7 +222,7 @@ export function SectionNetwork({
               label={t('config_management.visual.sections.network.credential_limits_session_window_minutes')}
               type="number"
               min={0}
-              placeholder="0"
+              placeholder="15"
               value={values.credentialLimitsSessionWindowMinutes}
               onChange={(e) => onChange({ credentialLimitsSessionWindowMinutes: e.target.value })}
               disabled={disabled}
@@ -234,7 +234,7 @@ export function SectionNetwork({
             <Input
               label={t('config_management.visual.sections.network.credential_limits_active_hours')}
               type="text"
-              placeholder="08:30-01:00"
+              placeholder={t('config_management.visual.sections.network.credential_limits_active_hours_placeholder')}
               value={values.credentialLimitsActiveHours}
               onChange={(e) => onChange({ credentialLimitsActiveHours: e.target.value })}
               disabled={disabled}

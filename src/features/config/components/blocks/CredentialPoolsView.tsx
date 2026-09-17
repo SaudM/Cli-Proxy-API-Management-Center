@@ -35,6 +35,23 @@ export function CredentialPoolsView({ data, loading, error, onReload }: Credenti
         </Button>
       </div>
       {error && <div className={styles.error}>{error}</div>}
+      {data?.deviceProfileDefaults && (
+        <div className={styles.baseline}>
+          <span className={styles.columnTitle}>{t(`${base}.pools_baseline`)}</span>
+          <span className={styles.primary}>{data.deviceProfileDefaults.userAgent}</span>
+          <span className={styles.secondary}>
+            sdk {data.deviceProfileDefaults.packageVersion} · node{' '}
+            {data.deviceProfileDefaults.runtimeVersion} · {data.deviceProfileDefaults.os}/
+            {data.deviceProfileDefaults.arch} · timeout {data.deviceProfileDefaults.timeout}s ·{' '}
+            {data.deviceProfileDefaults.timezone}
+          </span>
+          <span className={styles.secondary}>
+            {data.deviceProfileDefaults.sources.userAgent === 'config'
+              ? t(`${base}.pools_baseline_config`)
+              : t(`${base}.pools_baseline_builtin`)}
+          </span>
+        </div>
+      )}
       {data && (
         <div className={styles.columns}>
           <div className={styles.column}>

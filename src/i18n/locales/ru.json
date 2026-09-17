@@ -1178,7 +1178,10 @@
           "pools_weight": "вес {{weight}} · ~{{percent}}%",
           "pools_stabilize_on": "stabilize-device-profile: включено — каждая учётная запись закреплена за одной идентичностью устройства",
           "pools_stabilize_off": "stabilize-device-profile: выключено — нативные клиенты могут раскрыть OS/arch хоста прокси",
-          "pools_yaml_hint": "Списки редактируются в YAML (proxy-pool, claude-header-defaults.platform-pool); назначения обновляются при перезагрузке."
+          "pools_yaml_hint": "Списки редактируются в YAML (proxy-pool, claude-header-defaults.platform-pool); назначения обновляются при перезагрузке.",
+          "pools_baseline": "Действующая базовая линия Claude Code (используется, когда поля выше пусты)",
+          "pools_baseline_builtin": "источник: встроено в бэкенд, измерено на реальном клиенте — закреплять в YAML не нужно, обновляется вместе с бэкендом",
+          "pools_baseline_config": "источник: claude-header-defaults в YAML"
         },
         "network": {
           "title": "Сетевые настройки",
@@ -1231,6 +1234,7 @@
           "credential_limits_session_window_minutes_hint": "Сколько сессия считается активной после последнего запроса. Пусто = 15.",
           "credential_limits_active_hours": "Активные часы учётной записи",
           "credential_limits_active_hours_hint": "Дневное окно HH:MM-HH:MM в часовом поясе каждой записи (может переходить через полночь, напр. 08:30-01:00). Вне окна запись пропускается — с одной записью это 429 до открытия, включайте при двух и более. Пусто — круглосуточно.",
+          "credential_limits_active_hours_placeholder": "круглосуточно",
           "credential_limits_active_hours_jitter_minutes": "Дрожание окна (минуты)",
           "credential_limits_active_hours_jitter_minutes_hint": "Сдвигает границы окна каждой записи на стабильное смещение в пределах ±N минут в день, чтобы записи не включались одновременно.",
           "credential_limits_limit_jitter_percent": "Дрожание лимитов (%)",
