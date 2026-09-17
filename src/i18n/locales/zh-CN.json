@@ -434,7 +434,17 @@
     "device_profile_inherit": "继承全局",
     "device_profile_software": "文件中的软件三元组：{{value}}",
     "device_profile_hint": "仅 Claude 凭证。os/arch 可自由组合，让同一节点上的账号不呈现完全相同的平台；user-agent / package / runtime 三元组必须匹配已实测的 Claude Code 版本，需在 auth 文件里编辑。",
-    "limits_editor_title": "限流覆盖（rpm / tpm / max_concurrent）"
+    "limits_editor_title": "限流覆盖（rpm / tpm / max_concurrent）",
+    "identity_title": "向上游呈现的身份",
+    "identity_proxy": "出口",
+    "identity_platform": "设备",
+    "identity_timezone": "时钟",
+    "identity_source_pool": "池分配",
+    "identity_source_credential": "手动",
+    "identity_source_global": "全局",
+    "identity_source_stabilized": "已钉住",
+    "identity_source_direct": "直连",
+    "identity_source_none": "无"
   },
   "antigravity_subscription": {
     "plan_unknown": "未知",
@@ -1118,7 +1128,18 @@
           "timeout": "Timeout",
           "stabilize_device": "稳定设备指纹",
           "stabilize_device_desc": "固定 OS/Arch，并按凭据/API Key 稳定软件指纹",
-          "beta_features": "Beta Features"
+          "beta_features": "Beta Features",
+          "pools_title": "自动分配池",
+          "pools_desc": "只读回显 YAML 里的 proxy-pool 与 platform-pool，以及每条当前落了多少个凭证。",
+          "pools_refresh": "刷新",
+          "pools_proxy_title": "代理池",
+          "pools_platform_title": "平台池",
+          "pools_empty": "未配置",
+          "pools_assigned": "{{count}} 个凭证",
+          "pools_weight": "权重 {{weight}} · 约 {{percent}}%",
+          "pools_stabilize_on": "stabilize-device-profile：开 — 每个凭证钉在一套设备身份上",
+          "pools_stabilize_off": "stabilize-device-profile：关 — 原生客户端可能泄露代理宿主机的 OS/arch",
+          "pools_yaml_hint": "列表在 YAML 源码里编辑（proxy-pool、claude-header-defaults.platform-pool），重载后自动重新分配。"
         },
         "network": {
           "title": "网络配置",

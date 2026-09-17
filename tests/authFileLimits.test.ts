@@ -319,3 +319,40 @@ describe('sections render', () => {
     expect(renderToStaticMarkup(createElement(AuthFileFingerprintSection, {}))).toBe('');
   });
 });
+
+describe('identity summary', () => {
+  test('condenses proxy, platform and timezone with sources', async () => {
+    const { summarizeFingerprintIdentity, proxyDisplayHost } =
+      await import('../src/features/authFiles/limits');
+    const fingerprint = normalizeAuthFileFingerprint({
+      ...fingerprintPayload,
+      transport: { ...fingerprintPayload.transport, source: 'pool', label: 'jp-tokyo-4' },
+      device: { os: 'MacOS', arch: 'arm64', source: 'platform-pool' },
+      client: { current_date_timezone: 'Asia/Tokyo' },
+    });
+    expect(summarizeFingerprintIdentity(fingerprint)).toEqual({
+      proxy: 'jp-tokyo-4 · proxy:1080',
+      proxySource: 'pool',
+      platform: 'MacOS / arm64',
+      platformSource: 'platform-pool',
+      timezone: 'Asia/Tokyo',
+    });
+    expect(proxyDisplayHost('socks5://redacted@103.11.120.63:443/')).toBe('103.11.120.63:443');
+    expect(summarizeFingerprintIdentity(undefined)).toBeNull();
+  });
+
+  test('identity line renders sources and hides without a fingerprint', async () => {
+    await i18n.changeLanguage('en');
+    const { AuthFileIdentityLine } =
+      await import('../src/features/authFiles/components/AuthFileIdentityLine');
+    const fingerprint = normalizeAuthFileFingerprint({
+      ...fingerprintPayload,
+      transport: { proxy: 'socks5://redacted@1.2.3.4:443', source: 'pool', label: 'jp-1' },
+    });
+    const html = renderToStaticMarkup(createElement(AuthFileIdentityLine, { fingerprint }));
+    expect(html).toContain('jp-1 · 1.2.3.4:443');
+    expect(html).toContain('pool');
+    expect(html).toContain('Linux / x64');
+    expect(renderToStaticMarkup(createElement(AuthFileIdentityLine, {}))).toBe('');
+  });
+});

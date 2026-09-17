@@ -1,4 +1,4 @@
-import type { AuthFileLimitsSnapshot } from '@/types/authFile';
+import type { AuthFileFingerprint, AuthFileLimitsSnapshot } from '@/types/authFile';
 
 /** Backend identity modes reported in `fingerprint.identity_mode`. */
 export const FINGERPRINT_IDENTITY_MODES = [
@@ -141,4 +141,49 @@ export function buildClaudeDeviceProfilePatch(
   if (values.os) patch.os = values.os;
   if (values.arch) patch.arch = values.arch;
   return Object.keys(patch).length > 0 ? patch : null;
+}
+
+export type FingerprintIdentitySummary = {
+  /** Proxy host:port with scheme and credentials stripped, or "direct" / "none". */
+  proxy: string;
+  proxySource?: string;
+  /** "MacOS / arm64" style platform, empty when unknown. */
+  platform: string;
+  platformSource?: string;
+  timezone: string;
+};
+
+const readString = (value: unknown): string => (typeof value === 'string' ? value.trim() : '');
+
+/** Strips scheme and userinfo from a (redacted) proxy URL for compact display. */
+export function proxyDisplayHost(url: string): string {
+  return url.replace(/^[a-z0-9+.-]+:\/\/(?:[^@/]*@)?/i, '').replace(/\/$/, '');
+}
+
+/** Condenses a fingerprint report into the three identity facts worth showing on a card. */
+export function summarizeFingerprintIdentity(
+  fingerprint: AuthFileFingerprint | undefined
+): FingerprintIdentitySummary | null {
+  if (!fingerprint) return null;
+  const transport = fingerprint.transport;
+  const device = fingerprint.device;
+  const proxyRaw = readString(transport.proxy);
+  const proxySource = readString(transport.source) || undefined;
+  const proxy =
+    !proxyRaw || proxyRaw === 'direct' || proxyRaw === 'global-default'
+      ? proxyRaw || 'none'
+      : proxyDisplayHost(proxyRaw);
+  const os = readString(device.os);
+  const arch = readString(device.arch);
+  const platform = [os, arch].filter(Boolean).join(' / ');
+  const platformSource = readString(device.source) || undefined;
+  const timezone = readString(fingerprint.client.current_date_timezone);
+  const label = readString(transport.label);
+  return {
+    proxy: label ? `${label} · ${proxy}` : proxy,
+    ...(proxySource ? { proxySource } : {}),
+    platform,
+    ...(platformSource ? { platformSource } : {}),
+    timezone,
+  };
 }

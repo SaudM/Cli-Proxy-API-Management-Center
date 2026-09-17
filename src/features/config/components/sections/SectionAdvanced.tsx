@@ -18,6 +18,7 @@ import {
   ToggleRow,
 } from '../fields/FieldPrimitives';
 import { PluginStoreAuthEditor } from '../blocks/PluginStoreAuthEditor';
+import { CredentialPoolsBlock } from '../blocks/CredentialPoolsBlock';
 import { StringListEditor } from '../blocks/StringListEditor';
 
 const Icon = CONFIG_TAB_ICONS.advanced;
@@ -294,6 +295,7 @@ export function SectionAdvanced({ values, disabled, animateIn, onChange }: Confi
                 />
               </FieldAnchor>
             </FieldGrid>
+            <CredentialPoolsBlock />
             <Divider />
             <FieldGroupHeading title={t('config_management.visual.sections.headers.codex_title')} />
             <FieldGrid>

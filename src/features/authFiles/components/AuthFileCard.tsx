@@ -34,6 +34,7 @@ import type { AuthFileStatusBarData } from '@/features/authFiles/hooks/useAuthFi
 import { AuthFileQuotaSection } from '@/features/authFiles/components/AuthFileQuotaSection';
 import { AuthFileCooldownSection } from './AuthFileCooldownSection';
 import { AuthFileFingerprintSection } from './AuthFileFingerprintSection';
+import { AuthFileIdentityLine } from './AuthFileIdentityLine';
 import { AuthFileLimitsSection } from './AuthFileLimitsSection';
 import styles from './AuthFileCard.module.scss';
 
@@ -165,6 +166,8 @@ export function AuthFileCard(props: AuthFileCardProps) {
           {identity.secondary}
         </p>
       )}
+
+      <AuthFileIdentityLine fingerprint={file.fingerprint} />
 
       {!compact && noteValue && (
         <p className={styles.note} title={noteValue}>

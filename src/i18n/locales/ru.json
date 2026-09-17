@@ -442,7 +442,17 @@
     "device_profile_inherit": "Наследовать глобальный",
     "device_profile_software": "Тройка версий из файла: {{value}}",
     "device_profile_hint": "Только для учётных записей Claude. os/arch можно сочетать свободно, чтобы учётные записи на одном узле не выглядели одинаково; тройка user-agent / package / runtime должна соответствовать измеренному релизу Claude Code и редактируется в самом auth-файле.",
-    "limits_editor_title": "Переопределение лимитов (rpm / tpm / max_concurrent)"
+    "limits_editor_title": "Переопределение лимитов (rpm / tpm / max_concurrent)",
+    "identity_title": "Идентичность для апстрима",
+    "identity_proxy": "Выход",
+    "identity_platform": "Устройство",
+    "identity_timezone": "Часы",
+    "identity_source_pool": "из пула",
+    "identity_source_credential": "вручную",
+    "identity_source_global": "глобально",
+    "identity_source_stabilized": "закреплено",
+    "identity_source_direct": "напрямую",
+    "identity_source_none": "нет"
   },
   "antigravity_subscription": {
     "plan_unknown": "Неизвестно",
@@ -1126,7 +1136,21 @@
           "timeout": "Timeout",
           "stabilize_device": "Стабилизировать профиль устройства",
           "stabilize_device_desc": "Фиксировать OS/Arch и стабилизировать программный отпечаток для учётных данных/API-ключа",
-          "beta_features": "Beta Features"
+          "beta_features": "Beta Features",
+          "pools_title": "Пулы автоматического назначения",
+          "pools_desc": "Только чтение: proxy-pool и platform-pool из YAML и сколько учётных записей сейчас приходится на каждую запись.",
+          "pools_refresh": "Обновить",
+          "pools_proxy_title": "Пул прокси",
+          "pools_platform_title": "Пул платформ",
+          "pools_empty": "Не настроено",
+          "pools_assigned_one": "{{count}} учётная запись",
+          "pools_assigned_few": "{{count}} учётные записи",
+          "pools_assigned_many": "{{count}} учётных записей",
+          "pools_assigned_other": "{{count}} учётных записей",
+          "pools_weight": "вес {{weight}} · ~{{percent}}%",
+          "pools_stabilize_on": "stabilize-device-profile: включено — каждая учётная запись закреплена за одной идентичностью устройства",
+          "pools_stabilize_off": "stabilize-device-profile: выключено — нативные клиенты могут раскрыть OS/arch хоста прокси",
+          "pools_yaml_hint": "Списки редактируются в YAML (proxy-pool, claude-header-defaults.platform-pool); назначения обновляются при перезагрузке."
         },
         "network": {
           "title": "Сетевые настройки",
