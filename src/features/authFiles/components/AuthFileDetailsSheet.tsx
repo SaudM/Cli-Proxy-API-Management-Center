@@ -1,4 +1,4 @@
-import { useCallback, useMemo, type MouseEvent } from 'react';
+import { useCallback, useId, useMemo, type MouseEvent } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Trans, useTranslation } from 'react-i18next';
 import { Sheet } from '@/components/ui/Sheet';
@@ -57,6 +57,7 @@ export type AuthFileDetailsSheetProps = {
 export function AuthFileDetailsSheet(props: AuthFileDetailsSheetProps) {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const limitsFieldId = useId();
   const { disableControls, editor, updatedText, dirty, onClose, onCopyText, onSave, onChange } =
     props;
   const showConfirmation = useNotificationStore((state) => state.showConfirmation);
@@ -242,75 +243,118 @@ export function AuthFileDetailsSheet(props: AuthFileDetailsSheetProps) {
                     disabled={disableControls || editor.saving || !editor.json}
                     onChange={(e) => onChange('weight', e.target.value)}
                   />
-                  <div className={styles.limitsGrid}>
-                    <Input
-                      label={t('auth_files.limits_rpm_label')}
-                      type="number"
-                      min={0}
-                      step="1"
-                      value={editor.rpm}
-                      placeholder={t('auth_files.limits_inherit_placeholder')}
-                      disabled={disableControls || editor.saving || !editor.json}
-                      onChange={(e) => onChange('rpm', e.target.value)}
-                    />
-                    <Input
-                      label={t('auth_files.limits_tpm_label')}
-                      type="number"
-                      min={0}
-                      step="1"
-                      value={editor.tpm}
-                      placeholder={t('auth_files.limits_inherit_placeholder')}
-                      disabled={disableControls || editor.saving || !editor.json}
-                      onChange={(e) => onChange('tpm', e.target.value)}
-                    />
-                    <Input
-                      label={t('auth_files.limits_max_concurrent_label')}
-                      type="number"
-                      min={0}
-                      step="1"
-                      value={editor.maxConcurrent}
-                      placeholder={t('auth_files.limits_inherit_placeholder')}
-                      disabled={disableControls || editor.saving || !editor.json}
-                      onChange={(e) => onChange('maxConcurrent', e.target.value)}
-                    />
-                  </div>
-                  {editor.limitsError && <div className="error-box">{editor.limitsError}</div>}
-                  <div className="hint">{t('auth_files.limits_hint')}</div>
-                  {supportsAuthFileDeviceProfile(editor.providerKey) && (
-                    <div className="form-group">
-                      <label>{t('auth_files.device_profile_label')}</label>
-                      <div className={styles.limitsGrid}>
-                        <Select
-                          value={editor.deviceProfileOs}
-                          ariaLabel={t('auth_files.device_profile_os_label')}
-                          placeholder={t('auth_files.device_profile_inherit')}
-                          options={[
-                            { value: '', label: t('auth_files.device_profile_inherit') },
-                            ...CLAUDE_DEVICE_PROFILE_OS.map((value) => ({ value, label: value })),
-                          ]}
-                          disabled={disableControls || editor.saving || !editor.json}
-                          onChange={(value) => onChange('deviceProfileOs', value)}
-                        />
-                        <Select
-                          value={editor.deviceProfileArch}
-                          ariaLabel={t('auth_files.device_profile_arch_label')}
-                          placeholder={t('auth_files.device_profile_inherit')}
-                          options={[
-                            { value: '', label: t('auth_files.device_profile_inherit') },
-                            ...CLAUDE_DEVICE_PROFILE_ARCH.map((value) => ({ value, label: value })),
-                          ]}
-                          disabled={disableControls || editor.saving || !editor.json}
-                          onChange={(value) => onChange('deviceProfileArch', value)}
-                        />
-                      </div>
-                      {editor.deviceProfileSoftware && (
-                        <div className="hint">
-                          {t('auth_files.device_profile_software', {
-                            value: editor.deviceProfileSoftware,
-                          })}
+                  <div className={styles.compactGroup}>
+                    <div className={styles.compactEyebrow}>
+                      <span>{t('auth_files.limits_editor_title')}</span>
+                    </div>
+                    <div className={styles.compactGrid}>
+                      {(
+                        [
+                          [
+                            'rpm',
+                            editor.rpm,
+                            'auth_files.limits_rpm',
+                            'auth_files.limits_rpm_label',
+                          ],
+                          [
+                            'tpm',
+                            editor.tpm,
+                            'auth_files.limits_tpm',
+                            'auth_files.limits_tpm_label',
+                          ],
+                          [
+                            'maxConcurrent',
+                            editor.maxConcurrent,
+                            'auth_files.limits_concurrent',
+                            'auth_files.limits_max_concurrent_label',
+                          ],
+                        ] as const
+                      ).map(([field, value, captionKey, labelKey]) => (
+                        <div className={styles.compactField} key={field}>
+                          <label
+                            className={styles.compactCaption}
+                            htmlFor={`${limitsFieldId}-${field}`}
+                            title={t(labelKey)}
+                          >
+                            {t(captionKey)}
+                          </label>
+                          <input
+                            id={`${limitsFieldId}-${field}`}
+                            className={`input ${styles.compactInput}`}
+                            type="number"
+                            min={0}
+                            step="1"
+                            inputMode="numeric"
+                            value={value}
+                            placeholder={t('auth_files.limits_inherit_placeholder')}
+                            aria-label={t(labelKey)}
+                            aria-invalid={Boolean(editor.limitsError)}
+                            disabled={disableControls || editor.saving || !editor.json}
+                            onChange={(e) => onChange(field, e.target.value)}
+                          />
                         </div>
-                      )}
-                      <div className="hint">{t('auth_files.device_profile_hint')}</div>
+                      ))}
+                    </div>
+                    {editor.limitsError ? (
+                      <p className={styles.compactError}>{editor.limitsError}</p>
+                    ) : (
+                      <p className={styles.compactHint}>{t('auth_files.limits_hint')}</p>
+                    )}
+                  </div>
+                  {supportsAuthFileDeviceProfile(editor.providerKey) && (
+                    <div className={styles.compactGroup}>
+                      <div className={styles.compactEyebrow}>
+                        <span>{t('auth_files.device_profile_label')}</span>
+                      </div>
+                      <div className={`${styles.compactGrid} ${styles.compactGridTwo}`}>
+                        <div className={styles.compactField}>
+                          <span className={styles.compactCaption} id={`${limitsFieldId}-os-label`}>
+                            {t('auth_files.device_profile_os_label')}
+                          </span>
+                          <Select
+                            size="sm"
+                            value={editor.deviceProfileOs}
+                            ariaLabelledBy={`${limitsFieldId}-os-label`}
+                            placeholder={t('auth_files.device_profile_inherit')}
+                            options={[
+                              { value: '', label: t('auth_files.device_profile_inherit') },
+                              ...CLAUDE_DEVICE_PROFILE_OS.map((value) => ({ value, label: value })),
+                            ]}
+                            disabled={disableControls || editor.saving || !editor.json}
+                            onChange={(value) => onChange('deviceProfileOs', value)}
+                          />
+                        </div>
+                        <div className={styles.compactField}>
+                          <span
+                            className={styles.compactCaption}
+                            id={`${limitsFieldId}-arch-label`}
+                          >
+                            {t('auth_files.device_profile_arch_label')}
+                          </span>
+                          <Select
+                            size="sm"
+                            value={editor.deviceProfileArch}
+                            ariaLabelledBy={`${limitsFieldId}-arch-label`}
+                            placeholder={t('auth_files.device_profile_inherit')}
+                            options={[
+                              { value: '', label: t('auth_files.device_profile_inherit') },
+                              ...CLAUDE_DEVICE_PROFILE_ARCH.map((value) => ({
+                                value,
+                                label: value,
+                              })),
+                            ]}
+                            disabled={disableControls || editor.saving || !editor.json}
+                            onChange={(value) => onChange('deviceProfileArch', value)}
+                          />
+                        </div>
+                      </div>
+                      <p className={styles.compactHint}>
+                        {editor.deviceProfileSoftware
+                          ? t('auth_files.device_profile_software', {
+                              value: editor.deviceProfileSoftware,
+                            })
+                          : t('auth_files.device_profile_hint')}
+                      </p>
                     </div>
                   )}
                   <div className="form-group">

@@ -433,7 +433,8 @@
     "device_profile_arch_label": "架構",
     "device_profile_inherit": "繼承全域",
     "device_profile_software": "檔案中的軟體三元組：{{value}}",
-    "device_profile_hint": "僅 Claude 憑證。os/arch 可自由組合，讓同一節點上的帳號不呈現完全相同的平台；user-agent / package / runtime 三元組必須符合已實測的 Claude Code 版本，需在 auth 檔案中編輯。"
+    "device_profile_hint": "僅 Claude 憑證。os/arch 可自由組合，讓同一節點上的帳號不呈現完全相同的平台；user-agent / package / runtime 三元組必須符合已實測的 Claude Code 版本，需在 auth 檔案中編輯。",
+    "limits_editor_title": "限流覆寫（rpm / tpm / max_concurrent）"
   },
   "antigravity_subscription": {
     "plan_unknown": "未知",
@@ -1181,11 +1182,11 @@
           "ws_auth": "WebSocket 驗證",
           "ws_auth_desc": "啟用 WebSocket 連線驗證（/v1/ws）",
           "credential_limits_rpm": "憑證 RPM 上限",
-          "credential_limits_rpm_hint": "每個憑證每分鐘請求數預設上限（滾動 60 秒）。留空或 0 表示不限；憑證自身的 rpm 會覆寫此值。",
+          "credential_limits_rpm_hint": "每憑證每分鐘請求預設上限（滾動 60 秒）。留空或 0 表示不限。",
           "credential_limits_tpm": "憑證 TPM 上限",
-          "credential_limits_tpm_hint": "每個憑證每分鐘 token 預設上限（輸入+輸出，滾動 60 秒）。留空或 0 表示不限。",
+          "credential_limits_tpm_hint": "每憑證每分鐘 token 預設上限（輸入+輸出）。留空或 0 表示不限。",
           "credential_limits_max_concurrent": "憑證最大並發",
-          "credential_limits_max_concurrent_hint": "每個憑證在途請求數預設上限。留空或 0 表示不限。依 provider 的預設值在 YAML 的 credential-limits.providers 下設定。"
+          "credential_limits_max_concurrent_hint": "每憑證在途請求預設上限。留空或 0 表示不限。依 provider 的值在 YAML 的 credential-limits.providers 下設定。"
         },
         "quota": {
           "title": "配額回退",

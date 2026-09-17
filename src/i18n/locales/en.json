@@ -436,7 +436,8 @@
     "device_profile_arch_label": "Architecture",
     "device_profile_inherit": "Inherit global",
     "device_profile_software": "Software tuple from the file: {{value}}",
-    "device_profile_hint": "Claude credentials only. os/arch can be mixed freely so accounts on one node do not present identical platforms. The user-agent / package / runtime triple must match a measured Claude Code release and is edited in the auth file itself."
+    "device_profile_hint": "Claude credentials only. os/arch can be mixed freely so accounts on one node do not present identical platforms. The user-agent / package / runtime triple must match a measured Claude Code release and is edited in the auth file itself.",
+    "limits_editor_title": "Rate limit overrides (rpm / tpm / max_concurrent)"
   },
   "antigravity_subscription": {
     "plan_unknown": "Unknown",
@@ -1158,11 +1159,11 @@
           "ws_auth": "WebSocket Authentication",
           "ws_auth_desc": "Enable WebSocket authentication (/v1/ws)",
           "credential_limits_rpm": "Credential RPM Limit",
-          "credential_limits_rpm_hint": "Default requests-per-minute cap per credential (rolling 60s). Empty or 0 = unlimited; a credential's own rpm overrides it.",
+          "credential_limits_rpm_hint": "Default requests/min per credential (rolling 60s). Empty or 0 = unlimited.",
           "credential_limits_tpm": "Credential TPM Limit",
-          "credential_limits_tpm_hint": "Default tokens-per-minute cap per credential (input + output, rolling 60s). Empty or 0 = unlimited.",
+          "credential_limits_tpm_hint": "Default tokens/min per credential (input + output). Empty or 0 = unlimited.",
           "credential_limits_max_concurrent": "Credential Max Concurrent",
-          "credential_limits_max_concurrent_hint": "Default in-flight request cap per credential. Empty or 0 = unlimited. Per-provider defaults live under credential-limits.providers in the YAML."
+          "credential_limits_max_concurrent_hint": "Default in-flight requests per credential. Empty or 0 = unlimited. Per-provider values: credential-limits.providers in YAML."
         },
         "quota": {
           "title": "Quota Fallback",
