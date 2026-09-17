@@ -22,6 +22,10 @@ import {
   readClaudeDeviceProfile,
   readLimitOverride,
   readMaxConcurrentOverride,
+  readKebabAwareLimitOverride,
+  readActiveHoursOverride,
+  readProxyPoolLabel,
+  isValidActiveHoursText,
 } from '@/features/authFiles/limits';
 import {
   parseCredentialWeightText,
@@ -38,7 +42,9 @@ type AuthFileHeadersErrorKey =
 type AuthFileContentErrorKey =
   'auth_files.prefix_proxy_invalid_json' | 'auth_files.prefix_proxy_html_challenge';
 type AuthFileWeightErrorKey = 'auth_files.weight_invalid_integer' | 'auth_files.weight_invalid_max';
-type AuthFileLimitErrorKey = 'auth_files.limit_invalid_integer';
+type AuthFileLimitErrorKey =
+  | 'auth_files.limit_invalid_integer'
+  | 'auth_files.active_hours_invalid';
 type AuthFileEditorErrorKey =
   AuthFileHeadersErrorKey | AuthFileWeightErrorKey | AuthFileLimitErrorKey;
 
@@ -56,6 +62,11 @@ export type PrefixProxyEditorField =
   | 'rpm'
   | 'tpm'
   | 'maxConcurrent'
+  | 'rpd'
+  | 'tpd'
+  | 'maxSessions'
+  | 'activeHours'
+  | 'proxyPoolLabel'
   | 'deviceProfileOs'
   | 'deviceProfileArch';
 
@@ -94,6 +105,14 @@ export type PrefixProxyEditorState = {
   rpm: string;
   tpm: string;
   maxConcurrent: string;
+  rpd: string;
+  tpd: string;
+  maxSessions: string;
+  /** Text of active_hours; undefined-vs-empty is tracked through activeHoursTouched. */
+  activeHours: string;
+  activeHoursTouched: boolean;
+  proxyPoolLabel: string;
+  proxyPoolLabelTouched: boolean;
   limitsError: string | null;
   /** Claude device profile platform fields; the software triple is display-only. */
   deviceProfileOs: string;
@@ -346,7 +365,7 @@ export const buildAuthFileFieldsPatch = (
   const limitFields: Array<{
     text: string;
     original: number | undefined;
-    key: 'rpm' | 'tpm' | 'max_concurrent';
+    key: 'rpm' | 'tpm' | 'max_concurrent' | 'rpd' | 'tpd' | 'max_sessions';
   }> = [
     { text: editor.rpm ?? '', original: readLimitOverride(original.rpm), key: 'rpm' },
     { text: editor.tpm ?? '', original: readLimitOverride(original.tpm), key: 'tpm' },
@@ -354,6 +373,13 @@ export const buildAuthFileFieldsPatch = (
       text: editor.maxConcurrent ?? '',
       original: readMaxConcurrentOverride(original),
       key: 'max_concurrent',
+    },
+    { text: editor.rpd ?? '', original: readLimitOverride(original.rpd), key: 'rpd' },
+    { text: editor.tpd ?? '', original: readLimitOverride(original.tpd), key: 'tpd' },
+    {
+      text: editor.maxSessions ?? '',
+      original: readKebabAwareLimitOverride(original, 'max_sessions', 'max-sessions'),
+      key: 'max_sessions',
     },
   ];
   limitFields.forEach(({ text, original: originalLimit, key }) => {
@@ -367,6 +393,26 @@ export const buildAuthFileFieldsPatch = (
       patch[key] = nextLimit;
     }
   });
+
+  if (editor.activeHoursTouched) {
+    const text = (editor.activeHours ?? '').trim();
+    if (!isValidActiveHoursText(text)) {
+      throw new Error(resolveError('auth_files.active_hours_invalid'));
+    }
+    const originalHours = readActiveHoursOverride(
+      original.active_hours !== undefined ? original.active_hours : original['active-hours']
+    );
+    if (text !== (originalHours ?? '')) {
+      patch.active_hours = text;
+    }
+  }
+
+  if (editor.proxyPoolLabelTouched) {
+    const label = (editor.proxyPoolLabel ?? '').trim();
+    if (label !== readProxyPoolLabel(original)) {
+      patch.proxy_pool_label = label === '' ? null : label;
+    }
+  }
 
   if (supportsAuthFileDeviceProfile(editor.providerKey) && editor.deviceProfileTouched) {
     const originalProfile = readClaudeDeviceProfile(original);
@@ -481,16 +527,33 @@ const buildPrefixProxyUpdatedText = (
     }
   }
 
-  (['rpm', 'tpm', 'max_concurrent'] as const).forEach((key) => {
+  (['rpm', 'tpm', 'max_concurrent', 'rpd', 'tpd', 'max_sessions'] as const).forEach((key) => {
     const value = patch[key];
     if (value === undefined) return;
     if (value === null) {
       delete next[key];
       if (key === 'max_concurrent') delete next['max-concurrent'];
+      if (key === 'max_sessions') delete next['max-sessions'];
     } else {
       next[key] = value;
     }
   });
+  if (patch.active_hours !== undefined) {
+    delete next['active-hours'];
+    if (patch.active_hours === null) {
+      delete next.active_hours;
+    } else {
+      next.active_hours = patch.active_hours;
+    }
+  }
+  if (patch.proxy_pool_label !== undefined) {
+    delete next['proxy-pool-label'];
+    if (patch.proxy_pool_label === null) {
+      delete next.proxy_pool_label;
+    } else {
+      next.proxy_pool_label = patch.proxy_pool_label;
+    }
+  }
 
   if (patch.device_profile !== undefined) {
     if (patch.device_profile === null) {
@@ -607,6 +670,13 @@ export function useAuthFilesPrefixProxyEditor(
       rpm: '',
       tpm: '',
       maxConcurrent: '',
+      rpd: '',
+      tpd: '',
+      maxSessions: '',
+      activeHours: '',
+      activeHoursTouched: false,
+      proxyPoolLabel: '',
+      proxyPoolLabelTouched: false,
       limitsError: null,
       deviceProfileOs: '',
       deviceProfileArch: '',
@@ -670,6 +740,14 @@ export function useAuthFilesPrefixProxyEditor(
       const rpm = readLimitOverride(json.rpm);
       const tpm = readLimitOverride(json.tpm);
       const maxConcurrent = readMaxConcurrentOverride(json);
+      const rpd = readLimitOverride(json.rpd);
+      const tpd = readLimitOverride(json.tpd);
+      const maxSessions = readKebabAwareLimitOverride(json, 'max_sessions', 'max-sessions');
+      const activeHours =
+        readActiveHoursOverride(
+          json.active_hours !== undefined ? json.active_hours : json['active-hours']
+        ) ?? '';
+      const proxyPoolLabel = readProxyPoolLabel(json);
       const deviceProfile = supportsAuthFileDeviceProfile(providerKey)
         ? readClaudeDeviceProfile(json)
         : { os: '', arch: '' };
@@ -710,6 +788,13 @@ export function useAuthFilesPrefixProxyEditor(
           rpm: rpm !== undefined ? String(rpm) : '',
           tpm: tpm !== undefined ? String(tpm) : '',
           maxConcurrent: maxConcurrent !== undefined ? String(maxConcurrent) : '',
+          rpd: rpd !== undefined ? String(rpd) : '',
+          tpd: tpd !== undefined ? String(tpd) : '',
+          maxSessions: maxSessions !== undefined ? String(maxSessions) : '',
+          activeHours,
+          activeHoursTouched: false,
+          proxyPoolLabel,
+          proxyPoolLabelTouched: false,
           limitsError: null,
           deviceProfileOs: deviceProfile.os,
           deviceProfileArch: deviceProfile.arch,
@@ -777,12 +862,40 @@ export function useAuthFilesPrefixProxyEditor(
           headersError: errorKey ? t(errorKey) : null,
         };
       }
-      if (field === 'rpm' || field === 'tpm' || field === 'maxConcurrent') {
-        const next = { ...prev, [field]: String(value) };
-        const invalid = [next.rpm, next.tpm, next.maxConcurrent].some(
-          (text) => !isValidLimitText(text)
-        );
-        return { ...next, limitsError: invalid ? t('auth_files.limit_invalid_integer') : null };
+      if (
+        field === 'rpm' ||
+        field === 'tpm' ||
+        field === 'maxConcurrent' ||
+        field === 'rpd' ||
+        field === 'tpd' ||
+        field === 'maxSessions' ||
+        field === 'activeHours'
+      ) {
+        const next = {
+          ...prev,
+          [field]: String(value),
+          ...(field === 'activeHours' ? { activeHoursTouched: true } : {}),
+        };
+        const invalidInteger = [
+          next.rpm,
+          next.tpm,
+          next.maxConcurrent,
+          next.rpd,
+          next.tpd,
+          next.maxSessions,
+        ].some((text) => !isValidLimitText(text));
+        const invalidHours = !isValidActiveHoursText(next.activeHours);
+        return {
+          ...next,
+          limitsError: invalidInteger
+            ? t('auth_files.limit_invalid_integer')
+            : invalidHours
+              ? t('auth_files.active_hours_invalid')
+              : null,
+        };
+      }
+      if (field === 'proxyPoolLabel') {
+        return { ...prev, proxyPoolLabel: String(value), proxyPoolLabelTouched: true };
       }
       if (field === 'deviceProfileOs') {
         return { ...prev, deviceProfileOs: String(value), deviceProfileTouched: true };

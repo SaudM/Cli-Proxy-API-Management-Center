@@ -45,6 +45,16 @@ export function SectionNetwork({
     t,
     validationErrors?.credentialLimitsMaxConcurrent
   );
+  const shapeFieldError = (
+    key:
+      | 'credentialLimitsRpd'
+      | 'credentialLimitsTpd'
+      | 'credentialLimitsMaxSessions'
+      | 'credentialLimitsSessionWindowMinutes'
+      | 'credentialLimitsActiveHours'
+      | 'credentialLimitsActiveHoursJitterMinutes'
+      | 'credentialLimitsLimitJitterPercent'
+  ) => getValidationMessage(t, validationErrors?.[key]);
 
   const disableImageGenerationOptions = [
     {
@@ -166,6 +176,97 @@ export function SectionNetwork({
                 'config_management.visual.sections.network.credential_limits_max_concurrent_hint'
               )}
               error={credentialLimitsMaxConcurrentError}
+            />
+          </FieldAnchor>
+          <FieldAnchor fieldId="credentialLimitsRpd">
+            <Input
+              label={t('config_management.visual.sections.network.credential_limits_rpd')}
+              type="number"
+              min={0}
+              placeholder="0"
+              value={values.credentialLimitsRpd}
+              onChange={(e) => onChange({ credentialLimitsRpd: e.target.value })}
+              disabled={disabled}
+              hint={t('config_management.visual.sections.network.credential_limits_rpd_hint')}
+              error={shapeFieldError('credentialLimitsRpd')}
+            />
+          </FieldAnchor>
+          <FieldAnchor fieldId="credentialLimitsTpd">
+            <Input
+              label={t('config_management.visual.sections.network.credential_limits_tpd')}
+              type="number"
+              min={0}
+              placeholder="0"
+              value={values.credentialLimitsTpd}
+              onChange={(e) => onChange({ credentialLimitsTpd: e.target.value })}
+              disabled={disabled}
+              hint={t('config_management.visual.sections.network.credential_limits_tpd_hint')}
+              error={shapeFieldError('credentialLimitsTpd')}
+            />
+          </FieldAnchor>
+          <FieldAnchor fieldId="credentialLimitsMaxSessions">
+            <Input
+              label={t('config_management.visual.sections.network.credential_limits_max_sessions')}
+              type="number"
+              min={0}
+              placeholder="0"
+              value={values.credentialLimitsMaxSessions}
+              onChange={(e) => onChange({ credentialLimitsMaxSessions: e.target.value })}
+              disabled={disabled}
+              hint={t('config_management.visual.sections.network.credential_limits_max_sessions_hint')}
+              error={shapeFieldError('credentialLimitsMaxSessions')}
+            />
+          </FieldAnchor>
+          <FieldAnchor fieldId="credentialLimitsSessionWindowMinutes">
+            <Input
+              label={t('config_management.visual.sections.network.credential_limits_session_window_minutes')}
+              type="number"
+              min={0}
+              placeholder="0"
+              value={values.credentialLimitsSessionWindowMinutes}
+              onChange={(e) => onChange({ credentialLimitsSessionWindowMinutes: e.target.value })}
+              disabled={disabled}
+              hint={t('config_management.visual.sections.network.credential_limits_session_window_minutes_hint')}
+              error={shapeFieldError('credentialLimitsSessionWindowMinutes')}
+            />
+          </FieldAnchor>
+          <FieldAnchor fieldId="credentialLimitsActiveHours">
+            <Input
+              label={t('config_management.visual.sections.network.credential_limits_active_hours')}
+              type="text"
+              placeholder="08:30-01:00"
+              value={values.credentialLimitsActiveHours}
+              onChange={(e) => onChange({ credentialLimitsActiveHours: e.target.value })}
+              disabled={disabled}
+              hint={t('config_management.visual.sections.network.credential_limits_active_hours_hint')}
+              error={shapeFieldError('credentialLimitsActiveHours')}
+            />
+          </FieldAnchor>
+          <FieldAnchor fieldId="credentialLimitsActiveHoursJitterMinutes">
+            <Input
+              label={t('config_management.visual.sections.network.credential_limits_active_hours_jitter_minutes')}
+              type="number"
+              min={0}
+              placeholder="0"
+              value={values.credentialLimitsActiveHoursJitterMinutes}
+              onChange={(e) => onChange({ credentialLimitsActiveHoursJitterMinutes: e.target.value })}
+              disabled={disabled}
+              hint={t('config_management.visual.sections.network.credential_limits_active_hours_jitter_minutes_hint')}
+              error={shapeFieldError('credentialLimitsActiveHoursJitterMinutes')}
+            />
+          </FieldAnchor>
+          <FieldAnchor fieldId="credentialLimitsLimitJitterPercent">
+            <Input
+              label={t('config_management.visual.sections.network.credential_limits_limit_jitter_percent')}
+              type="number"
+              min={0}
+              max={50}
+              placeholder="0"
+              value={values.credentialLimitsLimitJitterPercent}
+              onChange={(e) => onChange({ credentialLimitsLimitJitterPercent: e.target.value })}
+              disabled={disabled}
+              hint={t('config_management.visual.sections.network.credential_limits_limit_jitter_percent_hint')}
+              error={shapeFieldError('credentialLimitsLimitJitterPercent')}
             />
           </FieldAnchor>
           <FieldAnchor fieldId="routingStrategy">

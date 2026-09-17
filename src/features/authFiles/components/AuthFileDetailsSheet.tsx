@@ -19,6 +19,7 @@ import {
 } from '@/features/authFiles/constants';
 import { CLAUDE_DEVICE_PROFILE_ARCH, CLAUDE_DEVICE_PROFILE_OS } from '@/features/authFiles/limits';
 import { Select } from '@/components/ui/Select';
+import { useCredentialPools } from '@/features/config/hooks/useCredentialPools';
 import { MAX_CREDENTIAL_WEIGHT } from '@/utils/credentialWeight';
 import { AuthFileExcludedModelsField } from './AuthFileExcludedModelsField';
 import styles from './AuthFileDetailsSheet.module.scss';
@@ -35,6 +36,11 @@ const DERIVED_INFO_KEYS = [
   // 'email' 不在此列：后端原始键名与 camelCase 同形，删掉会藏起真实数据。
   'projectId',
   'maxConcurrent',
+  'rpd',
+  'tpd',
+  'maxSessions',
+  'activeHours',
+  'proxyPoolLabel',
   'limitsSnapshot',
   'fingerprint',
 ];
@@ -58,6 +64,17 @@ export function AuthFileDetailsSheet(props: AuthFileDetailsSheetProps) {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const limitsFieldId = useId();
+  const credentialPools = useCredentialPools();
+  const proxyPoolOptions = useMemo(
+    () =>
+      (credentialPools.data?.proxyPool ?? [])
+        .filter((entry) => Boolean(entry.label))
+        .map((entry) => ({
+          value: entry.label as string,
+          label: entry.timezone ? `${entry.label} · ${entry.timezone}` : (entry.label as string),
+        })),
+    [credentialPools.data]
+  );
   const { disableControls, editor, updatedText, dirty, onClose, onCopyText, onSave, onChange } =
     props;
   const showConfirmation = useNotificationStore((state) => state.showConfirmation);
@@ -268,6 +285,14 @@ export function AuthFileDetailsSheet(props: AuthFileDetailsSheetProps) {
                             'auth_files.limits_concurrent',
                             'auth_files.limits_max_concurrent_label',
                           ],
+                          ['rpd', editor.rpd, 'auth_files.limits_rpd', 'auth_files.limits_rpd_label'],
+                          ['tpd', editor.tpd, 'auth_files.limits_tpd', 'auth_files.limits_tpd_label'],
+                          [
+                            'maxSessions',
+                            editor.maxSessions,
+                            'auth_files.limits_sessions',
+                            'auth_files.limits_max_sessions_label',
+                          ],
                         ] as const
                       ).map(([field, value, captionKey, labelKey]) => (
                         <div className={styles.compactField} key={field}>
@@ -294,6 +319,51 @@ export function AuthFileDetailsSheet(props: AuthFileDetailsSheetProps) {
                           />
                         </div>
                       ))}
+                    </div>
+                    <div className={`${styles.compactGrid} ${styles.compactGridTwo}`}>
+                      <div className={styles.compactField}>
+                        <label
+                          className={styles.compactCaption}
+                          htmlFor={`${limitsFieldId}-activeHours`}
+                          title={t('auth_files.limits_active_hours_label')}
+                        >
+                          {t('auth_files.limits_active_hours')}
+                        </label>
+                        <input
+                          id={`${limitsFieldId}-activeHours`}
+                          className={`input ${styles.compactInput}`}
+                          type="text"
+                          value={editor.activeHours ?? ''}
+                          placeholder={t('auth_files.limits_inherit_placeholder')}
+                          aria-label={t('auth_files.limits_active_hours_label')}
+                          aria-invalid={Boolean(editor.limitsError)}
+                          disabled={disableControls || editor.saving || !editor.json}
+                          onChange={(e) => onChange('activeHours', e.target.value)}
+                        />
+                      </div>
+                      {proxyPoolOptions.length > 0 && (
+                        <div className={styles.compactField}>
+                          <span
+                            className={styles.compactCaption}
+                            id={`${limitsFieldId}-proxy-label`}
+                            title={t('auth_files.proxy_pool_label_hint')}
+                          >
+                            {t('auth_files.proxy_pool_label_label')}
+                          </span>
+                          <Select
+                            size="sm"
+                            value={editor.proxyPoolLabel ?? ''}
+                            ariaLabelledBy={`${limitsFieldId}-proxy-label`}
+                            placeholder={t('auth_files.proxy_pool_label_auto')}
+                            options={[
+                              { value: '', label: t('auth_files.proxy_pool_label_auto') },
+                              ...proxyPoolOptions,
+                            ]}
+                            disabled={disableControls || editor.saving || !editor.json}
+                            onChange={(value) => onChange('proxyPoolLabel', value)}
+                          />
+                        </div>
+                      )}
                     </div>
                     {editor.limitsError ? (
                       <p className={styles.compactError}>{editor.limitsError}</p>

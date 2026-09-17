@@ -4,6 +4,8 @@ import { useNavigate } from 'react-router-dom';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
+import { Select } from '@/components/ui/Select';
+import { useCredentialPools } from '@/features/config/hooks/useCredentialPools';
 import { IconPlug } from '@/components/ui/icons';
 import { useAuthStore, useNotificationStore, useThemeStore } from '@/stores';
 import { oauthApi, pluginsApi, type BuiltInOAuthProvider } from '@/services/api';
@@ -453,6 +455,20 @@ export function OAuthPage() {
     startPolling(provider, state, attempt);
   };
 
+  // Claude logins may pick one proxy-pool line; the backend pins the new account to it.
+  const [anthropicProxyLabel, setAnthropicProxyLabel] = useState('');
+  const credentialPools = useCredentialPools();
+  const proxyLineOptions = useMemo(
+    () =>
+      (credentialPools.data?.proxyPool ?? [])
+        .filter((entry) => Boolean(entry.label))
+        .map((entry) => ({
+          value: entry.label as string,
+          label: entry.timezone ? `${entry.label} · ${entry.timezone}` : (entry.label as string),
+        })),
+    [credentialPools.data]
+  );
+
   const startAuth = async (provider: string) => {
     // A network error can stop polling while the server is still waiting. Require
     // explicit cancellation before replacing that Devin session.
@@ -472,7 +488,11 @@ export function OAuthPage() {
       callbackSubmitting: false,
     });
     try {
-      const res = await oauthApi.startAuth(provider, attempt.signal);
+      const res = await oauthApi.startAuth(
+        provider,
+        attempt.signal,
+        provider === 'anthropic' && anthropicProxyLabel ? { proxyLabel: anthropicProxyLabel } : undefined
+      );
       if (!attempt.isCurrent()) return;
       if (!res.state) {
         const message = t('auth_login.missing_state');
@@ -683,6 +703,24 @@ export function OAuthPage() {
               >
                 {t('auth_login.kimi_sign_up_button')}
               </Button>
+              <Button onClick={() => startAuth(provider.id)} loading={state.polling}>
+                {loginButtonLabel}
+              </Button>
+            </div>
+          ) : provider.id === 'anthropic' && proxyLineOptions.length > 0 ? (
+            <div className={styles.featuredActions}>
+              <Select
+                size="sm"
+                value={anthropicProxyLabel}
+                ariaLabel={t('auth_login.anthropic_proxy_label')}
+                placeholder={t('auth_login.anthropic_proxy_label_auto')}
+                options={[
+                  { value: '', label: t('auth_login.anthropic_proxy_label_auto') },
+                  ...proxyLineOptions,
+                ]}
+                disabled={state.polling}
+                onChange={(value) => setAnthropicProxyLabel(value)}
+              />
               <Button onClick={() => startAuth(provider.id)} loading={state.polling}>
                 {loginButtonLabel}
               </Button>

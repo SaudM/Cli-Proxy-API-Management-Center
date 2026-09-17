@@ -121,6 +121,27 @@ function setStringListInDoc(doc: YamlDocument, path: YamlPath, values: string[])
 }
 
 /** Reads one scalar of the `credential-limits` map as form text; absent → ''. */
+const ACTIVE_HOURS_TEXT = /^([01]\d|2[0-3]):[0-5]\d-([01]\d|2[0-3]):[0-5]\d$/;
+
+function getActiveHoursError(value: string): 'active_hours' | undefined {
+  const trimmed = value.trim();
+  if (trimmed === '') return undefined;
+  if (!ACTIVE_HOURS_TEXT.test(trimmed) || trimmed.split('-')[0] === trimmed.split('-')[1]) {
+    return 'active_hours';
+  }
+  return undefined;
+}
+
+function getJitterPercentError(
+  value: string
+): 'non_negative_integer' | 'jitter_percent' | undefined {
+  const base = getNonNegativeIntegerError(value);
+  if (base) return base;
+  const trimmed = value.trim();
+  if (trimmed !== '' && Number(trimmed) > 50) return 'jitter_percent';
+  return undefined;
+}
+
 function readCredentialLimitText(section: unknown, key: string): string {
   if (!section || typeof section !== 'object' || Array.isArray(section)) return '';
   const value = (section as Record<string, unknown>)[key];
@@ -218,6 +239,19 @@ export function getVisualConfigValidationErrors(
     credentialLimitsRpm: getNonNegativeIntegerError(values.credentialLimitsRpm),
     credentialLimitsTpm: getNonNegativeIntegerError(values.credentialLimitsTpm),
     credentialLimitsMaxConcurrent: getNonNegativeIntegerError(values.credentialLimitsMaxConcurrent),
+    credentialLimitsRpd: getNonNegativeIntegerError(values.credentialLimitsRpd),
+    credentialLimitsTpd: getNonNegativeIntegerError(values.credentialLimitsTpd),
+    credentialLimitsMaxSessions: getNonNegativeIntegerError(values.credentialLimitsMaxSessions),
+    credentialLimitsSessionWindowMinutes: getNonNegativeIntegerError(
+      values.credentialLimitsSessionWindowMinutes
+    ),
+    credentialLimitsActiveHours: getActiveHoursError(values.credentialLimitsActiveHours),
+    credentialLimitsActiveHoursJitterMinutes: getNonNegativeIntegerError(
+      values.credentialLimitsActiveHoursJitterMinutes
+    ),
+    credentialLimitsLimitJitterPercent: getJitterPercentError(
+      values.credentialLimitsLimitJitterPercent
+    ),
     'streaming.keepaliveSeconds': getIntegerError(values.streaming.keepaliveSeconds),
     'streaming.bootstrapRetries': getIntegerError(values.streaming.bootstrapRetries),
     'streaming.nonstreamKeepaliveInterval': getIntegerError(
@@ -1124,6 +1158,13 @@ function getNextDirtyFields(
       'credentialLimitsRpm',
       'credentialLimitsTpm',
       'credentialLimitsMaxConcurrent',
+      'credentialLimitsRpd',
+      'credentialLimitsTpd',
+      'credentialLimitsMaxSessions',
+      'credentialLimitsSessionWindowMinutes',
+      'credentialLimitsActiveHours',
+      'credentialLimitsActiveHoursJitterMinutes',
+      'credentialLimitsLimitJitterPercent',
       'wsAuth',
       'quotaSwitchProject',
       'quotaSwitchPreviewModel',
@@ -1355,6 +1396,13 @@ export function useVisualConfig() {
           parsed['credential-limits'],
           'max-concurrent'
         ),
+        credentialLimitsRpd: readCredentialLimitText(parsed['credential-limits'], 'rpd'),
+        credentialLimitsTpd: readCredentialLimitText(parsed['credential-limits'], 'tpd'),
+        credentialLimitsMaxSessions: readCredentialLimitText(parsed['credential-limits'], 'max-sessions'),
+        credentialLimitsSessionWindowMinutes: readCredentialLimitText(parsed['credential-limits'], 'session-window-minutes'),
+        credentialLimitsActiveHours: readCredentialLimitText(parsed['credential-limits'], 'active-hours'),
+        credentialLimitsActiveHoursJitterMinutes: readCredentialLimitText(parsed['credential-limits'], 'active-hours-jitter-minutes'),
+        credentialLimitsLimitJitterPercent: readCredentialLimitText(parsed['credential-limits'], 'limit-jitter-percent'),
         disableCooling: Boolean(parsed['disable-cooling']),
         disableImageGeneration: parseDisableImageGenerationMode(parsed['disable-image-generation']),
         gptImage2BaseModel:
@@ -1589,7 +1637,14 @@ export function useVisualConfig() {
         const credentialLimitsDirty =
           dirtyFields.has('credentialLimitsRpm') ||
           dirtyFields.has('credentialLimitsTpm') ||
-          dirtyFields.has('credentialLimitsMaxConcurrent');
+          dirtyFields.has('credentialLimitsMaxConcurrent') ||
+          dirtyFields.has('credentialLimitsRpd') ||
+          dirtyFields.has('credentialLimitsTpd') ||
+          dirtyFields.has('credentialLimitsMaxSessions') ||
+          dirtyFields.has('credentialLimitsSessionWindowMinutes') ||
+          dirtyFields.has('credentialLimitsActiveHours') ||
+          dirtyFields.has('credentialLimitsActiveHoursJitterMinutes') ||
+          dirtyFields.has('credentialLimitsLimitJitterPercent');
         if (credentialLimitsDirty) {
           ensureMapInDoc(doc, ['credential-limits']);
           if (dirtyFields.has('credentialLimitsRpm')) {
@@ -1604,6 +1659,27 @@ export function useVisualConfig() {
               ['credential-limits', 'max-concurrent'],
               values.credentialLimitsMaxConcurrent
             );
+          }
+          if (dirtyFields.has('credentialLimitsRpd')) {
+            setIntFromStringInDoc(doc, ['credential-limits', 'rpd'], values.credentialLimitsRpd);
+          }
+          if (dirtyFields.has('credentialLimitsTpd')) {
+            setIntFromStringInDoc(doc, ['credential-limits', 'tpd'], values.credentialLimitsTpd);
+          }
+          if (dirtyFields.has('credentialLimitsMaxSessions')) {
+            setIntFromStringInDoc(doc, ['credential-limits', 'max-sessions'], values.credentialLimitsMaxSessions);
+          }
+          if (dirtyFields.has('credentialLimitsSessionWindowMinutes')) {
+            setIntFromStringInDoc(doc, ['credential-limits', 'session-window-minutes'], values.credentialLimitsSessionWindowMinutes);
+          }
+          if (dirtyFields.has('credentialLimitsActiveHours')) {
+            setStringInDoc(doc, ['credential-limits', 'active-hours'], values.credentialLimitsActiveHours);
+          }
+          if (dirtyFields.has('credentialLimitsActiveHoursJitterMinutes')) {
+            setIntFromStringInDoc(doc, ['credential-limits', 'active-hours-jitter-minutes'], values.credentialLimitsActiveHoursJitterMinutes);
+          }
+          if (dirtyFields.has('credentialLimitsLimitJitterPercent')) {
+            setIntFromStringInDoc(doc, ['credential-limits', 'limit-jitter-percent'], values.credentialLimitsLimitJitterPercent);
           }
           deleteIfMapEmpty(doc, ['credential-limits']);
         }

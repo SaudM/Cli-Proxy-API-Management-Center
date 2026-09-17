@@ -72,3 +72,9 @@
     transition: none;
   }
 }
+
+.asleep {
+  .meterValue {
+    color: var(--warning-color, #b45309);
+  }
+}

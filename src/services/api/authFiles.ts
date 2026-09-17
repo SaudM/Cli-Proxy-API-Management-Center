@@ -38,6 +38,13 @@ export type AuthFileFieldsPatch = {
   rpm?: number | null;
   tpm?: number | null;
   max_concurrent?: number | null;
+  rpd?: number | null;
+  tpd?: number | null;
+  max_sessions?: number | null;
+  /** "" keeps an explicit always-on override; null removes the override. */
+  active_hours?: string | null;
+  /** Pool entry label; "" or null removes the pin. */
+  proxy_pool_label?: string | null;
   /** Claude device profile object; null clears it. */
   device_profile?: Record<string, string> | null;
 };
@@ -276,6 +283,12 @@ const normalizeAuthFileEntry = (
   const rpm = readIntegerField(entry['rpm']);
   const tpm = readIntegerField(entry['tpm']);
   const maxConcurrent = readIntegerField(entry['max_concurrent']);
+  const rpd = readIntegerField(entry['rpd']);
+  const tpd = readIntegerField(entry['tpd']);
+  const maxSessions = readIntegerField(entry['max_sessions']);
+  const activeHours = typeof entry['active_hours'] === 'string' ? entry['active_hours'].trim() : undefined;
+  const proxyPoolLabel =
+    typeof entry['proxy_pool_label'] === 'string' ? entry['proxy_pool_label'].trim() : '';
   const limitsSnapshot = normalizeAuthFileLimits(entry['limits']);
   const fingerprint = normalizeAuthFileFingerprint(entry['fingerprint']);
 
@@ -285,6 +298,11 @@ const normalizeAuthFileEntry = (
     ...(rpm !== undefined && rpm >= 0 ? { rpm } : {}),
     ...(tpm !== undefined && tpm >= 0 ? { tpm } : {}),
     ...(maxConcurrent !== undefined && maxConcurrent >= 0 ? { maxConcurrent } : {}),
+    ...(rpd !== undefined && rpd >= 0 ? { rpd } : {}),
+    ...(tpd !== undefined && tpd >= 0 ? { tpd } : {}),
+    ...(maxSessions !== undefined && maxSessions >= 0 ? { maxSessions } : {}),
+    ...(activeHours !== undefined ? { activeHours } : {}),
+    ...(proxyPoolLabel ? { proxyPoolLabel } : {}),
     ...(limitsSnapshot ? { limitsSnapshot } : {}),
     ...(fingerprint ? { fingerprint } : {}),
     runtimeOnly: readRuntimeOnlyField(entry),

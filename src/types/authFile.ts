@@ -54,11 +54,48 @@ export interface AuthFileConcurrencyLimit {
   inFlight: number;
 }
 
+export interface AuthFileSessionLimit {
+  /** Effective limit; 0 = unlimited. */
+  limit: number;
+  /** Distinct downstream sessions seen inside the window. */
+  active: number;
+  windowSeconds: number;
+}
+
+export interface AuthFileActiveHours {
+  /** "HH:MM-HH:MM" in the credential's timezone; empty = always on. */
+  window: string;
+  awake: boolean;
+  /** ISO instant of the next window edge; absent when no window is set. */
+  nextChangeAt?: string;
+  nextChangeInSeconds?: number;
+}
+
 /** Effective per-credential limits plus live usage (backend `limits`). */
 export interface AuthFileLimitsSnapshot {
   rpm: AuthFileLimitWindow;
   tpm: AuthFileLimitWindow;
   maxConcurrent: AuthFileConcurrencyLimit;
+  /** Absent on backends that predate daily budgets / sessions / active hours. */
+  rpd?: AuthFileLimitWindow;
+  tpd?: AuthFileLimitWindow;
+  maxSessions?: AuthFileSessionLimit;
+  activeHours?: AuthFileActiveHours;
+  timezone?: string;
+}
+
+export interface AuthFileClientVersion {
+  version: string;
+  requests: number;
+  baseline: boolean;
+  lastSeen?: string;
+}
+
+/** Downstream Claude Code versions this credential served recently (backend `fingerprint.clients`). */
+export interface AuthFileClientVersions {
+  baseline: string;
+  windowHours: number;
+  versions: AuthFileClientVersion[];
 }
 
 /** Read-only upstream identity report (backend `fingerprint`). Secrets are already redacted. */
@@ -72,6 +109,7 @@ export interface AuthFileFingerprint {
   device: Record<string, unknown>;
   transport: Record<string, unknown>;
   credentialOverrides: Record<string, unknown>;
+  clients?: AuthFileClientVersions;
   warnings: string[];
 }
 
@@ -113,6 +151,12 @@ export interface AuthFileItem {
   rpm?: number;
   tpm?: number;
   maxConcurrent?: number;
+  rpd?: number;
+  tpd?: number;
+  maxSessions?: number;
+  /** Explicit "" means always on and overrides the global window. */
+  activeHours?: string;
+  proxyPoolLabel?: string;
   /** Absent on servers without per-credential limits. */
   limitsSnapshot?: AuthFileLimitsSnapshot;
   /** Absent on servers without fingerprint reporting. */

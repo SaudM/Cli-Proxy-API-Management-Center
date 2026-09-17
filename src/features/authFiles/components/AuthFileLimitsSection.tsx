@@ -1,6 +1,11 @@
 import { useTranslation } from 'react-i18next';
 import type { AuthFileLimitsSnapshot } from '@/types/authFile';
-import { formatLimitUsage, hasLimitActivity, limitUsageRatio } from '@/features/authFiles/limits';
+import {
+  formatClockInZone,
+  formatLimitUsage,
+  hasLimitActivity,
+  limitUsageRatio,
+} from '@/features/authFiles/limits';
 import styles from './AuthFileLimitsSection.module.scss';
 
 type MeterProps = {
@@ -28,15 +33,23 @@ function LimitMeter({ label, title, used, limit, compact }: MeterProps) {
 }
 
 /**
- * Effective rpm / tpm / concurrency limits with live usage. Hidden when nothing is
- * configured and nothing is in flight, so unlimited idle credentials stay quiet.
+ * Effective limits with live usage: the per-minute caps, the daily budget, the session
+ * cap and the active-hours window. Hidden when nothing is configured and nothing is in
+ * flight, so unlimited idle credentials stay quiet.
  */
 export function AuthFileLimitsSection({ snapshot }: { snapshot?: AuthFileLimitsSnapshot }) {
   const { t } = useTranslation();
   if (!hasLimitActivity(snapshot) || !snapshot) return null;
-  const { rpm, tpm, maxConcurrent } = snapshot;
+  const { rpm, tpm, maxConcurrent, rpd, tpd, maxSessions, activeHours, timezone } = snapshot;
   const resets = (seconds: number) =>
     seconds > 0 ? t('auth_files.limits_resets_in', { seconds }) : t('auth_files.limits_idle');
+  const dayResets = (seconds: number) =>
+    seconds > 0 ? t('auth_files.limits_day_resets_in', { hours: Math.ceil(seconds / 3600) }) : '';
+  const showDay = Boolean(rpd && (rpd.limit > 0 || rpd.used > 0)) || Boolean(tpd && (tpd.limit > 0 || tpd.used > 0));
+  const showSessions = Boolean(maxSessions && (maxSessions.limit > 0 || maxSessions.active > 0));
+  const showHours = Boolean(activeHours && activeHours.window !== '');
+  const nextEdge =
+    activeHours?.nextChangeAt !== undefined ? formatClockInZone(activeHours.nextChangeAt, timezone) : '';
   return (
     <div className={styles.section} role="group" aria-label={t('auth_files.limits_label')}>
       <span className={styles.eyebrow}>{t('auth_files.limits_label')}</span>
@@ -59,6 +72,49 @@ export function AuthFileLimitsSection({ snapshot }: { snapshot?: AuthFileLimitsS
         used={maxConcurrent.inFlight}
         limit={maxConcurrent.limit}
       />
+      {showDay && rpd && (
+        <LimitMeter
+          label={t('auth_files.limits_rpd')}
+          title={`${t('auth_files.limits_rpd_title')} · ${dayResets(rpd.resetsInSeconds)}`}
+          used={rpd.used}
+          limit={rpd.limit}
+        />
+      )}
+      {showDay && tpd && (
+        <LimitMeter
+          label={t('auth_files.limits_tpd')}
+          title={`${t('auth_files.limits_tpd_title')} · ${dayResets(tpd.resetsInSeconds)}`}
+          used={tpd.used}
+          limit={tpd.limit}
+          compact
+        />
+      )}
+      {showSessions && maxSessions && (
+        <LimitMeter
+          label={t('auth_files.limits_sessions')}
+          title={t('auth_files.limits_sessions_title', {
+            minutes: Math.round(maxSessions.windowSeconds / 60),
+          })}
+          used={maxSessions.active}
+          limit={maxSessions.limit}
+        />
+      )}
+      {showHours && activeHours && (
+        <span
+          className={`${styles.meter} ${activeHours.awake ? '' : styles.asleep}`}
+          title={t('auth_files.limits_active_hours_title', {
+            window: activeHours.window,
+            timezone: timezone ?? '',
+          })}
+        >
+          <span className={styles.meterLabel}>{t('auth_files.limits_active_hours')}</span>
+          <span className={styles.meterValue}>
+            {activeHours.awake
+              ? t('auth_files.limits_awake_until', { time: nextEdge })
+              : t('auth_files.limits_asleep_until', { time: nextEdge })}
+          </span>
+        </span>
+      )}
     </div>
   );
 }

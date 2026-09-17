@@ -106,6 +106,26 @@ export function AuthFileFingerprintSection({ fingerprint }: { fingerprint?: Auth
             </div>
           ) : null
         )}
+        {fingerprint.clients && (
+          <div className={styles.group}>
+            <span className={styles.groupLabel}>
+              {t('auth_files.fingerprint_clients', { hours: fingerprint.clients.windowHours })}
+            </span>
+            <dl className={styles.kv}>
+              {fingerprint.clients.versions.map((client) => (
+                <div className={styles.kvRow} key={client.version}>
+                  <dt className={styles.kvKey}>
+                    {client.version}
+                    {client.baseline ? ` · ${t('auth_files.fingerprint_clients_baseline')}` : ''}
+                  </dt>
+                  <dd className={styles.kvValue}>
+                    {t('auth_files.fingerprint_clients_requests', { count: client.requests })}
+                  </dd>
+                </div>
+              ))}
+            </dl>
+          </div>
+        )}
         {hasWarnings && (
           <div className={styles.group}>
             <span className={styles.groupLabel}>{t('auth_files.fingerprint_warnings')}</span>

@@ -57,18 +57,69 @@ export function readMaxConcurrentOverride(value: Record<string, unknown>): numbe
   );
 }
 
-/** Whether the limits row is worth showing: a configured limit or any live usage. */
+const ACTIVE_HOURS_PATTERN = /^([01]\d|2[0-3]):[0-5]\d-([01]\d|2[0-3]):[0-5]\d$/;
+
+/** True for "" (always on) or a "HH:MM-HH:MM" window whose ends differ. */
+export function isValidActiveHoursText(value: string): boolean {
+  const trimmed = value.trim();
+  if (trimmed === '') return true;
+  if (!ACTIVE_HOURS_PATTERN.test(trimmed)) return false;
+  const [start, end] = trimmed.split('-');
+  return start !== end;
+}
+
+/** Reads a per-credential active_hours override; only strings count, and they are trimmed. */
+export function readActiveHoursOverride(value: unknown): string | undefined {
+  return typeof value === 'string' ? value.trim() : undefined;
+}
+
+/** Reads the proxy-pool pin, accepting the kebab spelling used in YAML-derived files. */
+export function readProxyPoolLabel(value: Record<string, unknown>): string {
+  const raw = value.proxy_pool_label !== undefined ? value.proxy_pool_label : value['proxy-pool-label'];
+  return typeof raw === 'string' ? raw.trim() : '';
+}
+
+/** Reads a snake_case override, accepting the kebab spelling used in YAML-derived files. */
+export function readKebabAwareLimitOverride(
+  value: Record<string, unknown>,
+  snake: string,
+  kebab: string
+): number | undefined {
+  return readLimitOverride(value[snake] !== undefined ? value[snake] : value[kebab]);
+}
+
+/** Whether the limits row is worth showing: a configured limit, a window, or any live usage. */
 export function hasLimitActivity(snapshot: AuthFileLimitsSnapshot | undefined): boolean {
   if (!snapshot) return false;
-  const { rpm, tpm, maxConcurrent } = snapshot;
+  const { rpm, tpm, maxConcurrent, rpd, tpd, maxSessions, activeHours } = snapshot;
   return (
     rpm.limit > 0 ||
     tpm.limit > 0 ||
     maxConcurrent.limit > 0 ||
     rpm.used > 0 ||
     tpm.used > 0 ||
-    maxConcurrent.inFlight > 0
+    maxConcurrent.inFlight > 0 ||
+    Boolean(rpd && (rpd.limit > 0 || rpd.used > 0)) ||
+    Boolean(tpd && (tpd.limit > 0 || tpd.used > 0)) ||
+    Boolean(maxSessions && (maxSessions.limit > 0 || maxSessions.active > 0)) ||
+    Boolean(activeHours && activeHours.window !== '')
   );
+}
+
+/** "HH:MM" of an ISO instant in the given IANA timezone; falls back to the browser zone. */
+export function formatClockInZone(iso: string, timezone?: string): string {
+  const date = new Date(iso);
+  if (Number.isNaN(date.getTime())) return '';
+  try {
+    return new Intl.DateTimeFormat(undefined, {
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: false,
+      ...(timezone ? { timeZone: timezone } : {}),
+    }).format(date);
+  } catch {
+    return date.toISOString().slice(11, 16);
+  }
 }
 
 /** Compact count formatting for token totals: 950 → "950", 12_345 → "12.3k", 4_000_000 → "4M". */

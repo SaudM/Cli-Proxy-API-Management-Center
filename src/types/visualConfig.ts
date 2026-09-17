@@ -18,12 +18,24 @@ export type VisualConfigFieldPath =
   | 'credentialLimitsRpm'
   | 'credentialLimitsTpm'
   | 'credentialLimitsMaxConcurrent'
+  | 'credentialLimitsRpd'
+  | 'credentialLimitsTpd'
+  | 'credentialLimitsMaxSessions'
+  | 'credentialLimitsSessionWindowMinutes'
+  | 'credentialLimitsActiveHours'
+  | 'credentialLimitsActiveHoursJitterMinutes'
+  | 'credentialLimitsLimitJitterPercent'
   | 'streaming.keepaliveSeconds'
   | 'streaming.bootstrapRetries'
   | 'streaming.nonstreamKeepaliveInterval';
 
 export type VisualConfigValidationErrorCode =
-  'port_range' | 'integer' | 'non_negative_integer' | 'integer_range_1_3600';
+  | 'port_range'
+  | 'integer'
+  | 'non_negative_integer'
+  | 'integer_range_1_3600'
+  | 'active_hours'
+  | 'jitter_percent';
 
 export type VisualConfigValidationErrors = Partial<
   Record<VisualConfigFieldPath, VisualConfigValidationErrorCode>
@@ -118,6 +130,14 @@ export type VisualConfigValues = {
   credentialLimitsRpm: string;
   credentialLimitsTpm: string;
   credentialLimitsMaxConcurrent: string;
+  credentialLimitsRpd: string;
+  credentialLimitsTpd: string;
+  credentialLimitsMaxSessions: string;
+  credentialLimitsSessionWindowMinutes: string;
+  /** "HH:MM-HH:MM"; empty = always on. */
+  credentialLimitsActiveHours: string;
+  credentialLimitsActiveHoursJitterMinutes: string;
+  credentialLimitsLimitJitterPercent: string;
   disableCooling: boolean;
   disableImageGeneration: DisableImageGenerationMode;
   gptImage2BaseModel: string;
@@ -187,6 +207,13 @@ export const DEFAULT_VISUAL_VALUES: VisualConfigValues = {
   credentialLimitsRpm: '',
   credentialLimitsTpm: '',
   credentialLimitsMaxConcurrent: '',
+  credentialLimitsRpd: '',
+  credentialLimitsTpd: '',
+  credentialLimitsMaxSessions: '',
+  credentialLimitsSessionWindowMinutes: '',
+  credentialLimitsActiveHours: '',
+  credentialLimitsActiveHoursJitterMinutes: '',
+  credentialLimitsLimitJitterPercent: '',
   disableCooling: false,
   disableImageGeneration: 'false',
   gptImage2BaseModel: '',

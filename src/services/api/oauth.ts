@@ -35,11 +35,16 @@ const normalizeProviderForManagementPath = (provider: string): string => {
 };
 
 export const oauthApi = {
-  startAuth: (provider: string, signal?: AbortSignal) => {
+  startAuth: (provider: string, signal?: AbortSignal, options?: { proxyLabel?: string }) => {
     const providerKey = normalizeProviderForManagementPath(provider);
     const params: Record<string, string | boolean> = {};
     if (WEBUI_SUPPORTED.has(providerKey)) {
       params.is_webui = true;
+    }
+    // Claude only: log in through one proxy-pool line and pin the account to it.
+    const proxyLabel = options?.proxyLabel?.trim();
+    if (providerKey === 'anthropic' && proxyLabel) {
+      params.proxy_label = proxyLabel;
     }
     return apiClient.get<OAuthStartResponse>(`/${providerKey}-auth-url`, {
       params: Object.keys(params).length ? params : undefined,

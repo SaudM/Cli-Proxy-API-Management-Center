@@ -13,11 +13,15 @@ import {
   formatCompactCount,
   formatLimitUsage,
   hasLimitActivity,
+  isValidActiveHoursText,
   isValidLimitText,
   parseLimitText,
+  readActiveHoursOverride,
   readClaudeDeviceProfile,
+  readKebabAwareLimitOverride,
   readLimitOverride,
   readMaxConcurrentOverride,
+  readProxyPoolLabel,
 } from '../src/features/authFiles/limits';
 import { buildAuthFileFieldsPatch } from '../src/features/authFiles/hooks/useAuthFilesPrefixProxyEditor';
 import type { PrefixProxyEditorState } from '../src/features/authFiles/hooks/useAuthFilesPrefixProxyEditor';
@@ -354,5 +358,127 @@ describe('identity summary', () => {
     expect(html).toContain('pool');
     expect(html).toContain('Linux / x64');
     expect(renderToStaticMarkup(createElement(AuthFileIdentityLine, {}))).toBe('');
+  });
+});
+
+describe('limits normalization: day budgets, sessions, active hours', () => {
+  test('keeps the optional shape fields and drops malformed ones', () => {
+    const snapshot = normalizeAuthFileLimits({
+      rpm: { limit: 30, used: 1, resets_in_seconds: 10 },
+      tpm: { limit: 0, used: 0, resets_in_seconds: 0 },
+      max_concurrent: { limit: 4, in_flight: 0 },
+      rpd: { limit: 600, used: 12, resets_in_seconds: 3600 },
+      tpd: { limit: 15000000, used: 200000, resets_in_seconds: 3600 },
+      max_sessions: { limit: 4, active: 2, window_seconds: 900 },
+      active_hours: { window: '08:30-01:00', awake: false, next_change_at: '2026-09-18T23:30:00Z', next_change_in_seconds: 120 },
+      timezone: 'Asia/Tokyo',
+    });
+    expect(snapshot?.rpd).toEqual({ limit: 600, used: 12, resetsInSeconds: 3600 });
+    expect(snapshot?.maxSessions).toEqual({ limit: 4, active: 2, windowSeconds: 900 });
+    expect(snapshot?.activeHours).toEqual({
+      window: '08:30-01:00',
+      awake: false,
+      nextChangeAt: '2026-09-18T23:30:00Z',
+      nextChangeInSeconds: 120,
+    });
+    expect(snapshot?.timezone).toBe('Asia/Tokyo');
+    expect(hasLimitActivity(snapshot)).toBe(true);
+
+    const legacy = normalizeAuthFileLimits({
+      rpm: { limit: 0, used: 0, resets_in_seconds: 0 },
+      tpm: { limit: 0, used: 0, resets_in_seconds: 0 },
+      max_concurrent: { limit: 0, in_flight: 0 },
+      rpd: 'nope',
+    });
+    expect(legacy?.rpd).toBeUndefined();
+    expect(hasLimitActivity(legacy)).toBe(false);
+  });
+
+  test('an active-hours window alone makes the limits row visible', () => {
+    const snapshot = normalizeAuthFileLimits({
+      rpm: { limit: 0, used: 0, resets_in_seconds: 0 },
+      tpm: { limit: 0, used: 0, resets_in_seconds: 0 },
+      max_concurrent: { limit: 0, in_flight: 0 },
+      active_hours: { window: '09:00-18:00', awake: true },
+    });
+    expect(hasLimitActivity(snapshot)).toBe(true);
+  });
+});
+
+describe('active hours text', () => {
+  test('accepts empty and HH:MM-HH:MM windows, rejects the rest', () => {
+    expect(isValidActiveHoursText('')).toBe(true);
+    expect(isValidActiveHoursText(' 08:30-01:00 ')).toBe(true);
+    expect(isValidActiveHoursText('09:00-18:00')).toBe(true);
+    expect(isValidActiveHoursText('09:00-09:00')).toBe(false);
+    expect(isValidActiveHoursText('24:00-01:00')).toBe(false);
+    expect(isValidActiveHoursText('8-9')).toBe(false);
+  });
+
+  test('reads overrides with kebab fallbacks', () => {
+    expect(readActiveHoursOverride(' 08:30-01:00 ')).toBe('08:30-01:00');
+    expect(readActiveHoursOverride(5)).toBeUndefined();
+    expect(readProxyPoolLabel({ 'proxy-pool-label': ' jp-1 ' })).toBe('jp-1');
+    expect(readProxyPoolLabel({ proxy_pool_label: 'jp-2', 'proxy-pool-label': 'jp-1' })).toBe('jp-2');
+    expect(readKebabAwareLimitOverride({ 'max-sessions': 3 }, 'max_sessions', 'max-sessions')).toBe(3);
+  });
+});
+
+describe('fingerprint clients', () => {
+  test('normalizes the version list and drops empty ones', () => {
+    const fingerprint = normalizeAuthFileFingerprint({
+      identity_mode: 'cloak-claude-code-cli',
+      user_agent: 'claude-cli/2.1.258 (external, cli)',
+      clients: {
+        baseline: '2.1.258',
+        window_hours: 24,
+        versions: [
+          { version: '2.1.258', requests: 12, baseline: true, last_seen: '2026-09-18T00:00:00Z' },
+          { version: '2.1.301', requests: 1, baseline: false },
+          { requests: 3 },
+        ],
+      },
+    });
+    expect(fingerprint?.clients?.baseline).toBe('2.1.258');
+    expect(fingerprint?.clients?.versions).toHaveLength(2);
+    expect(fingerprint?.clients?.versions[0]).toEqual({
+      version: '2.1.258',
+      requests: 12,
+      baseline: true,
+      lastSeen: '2026-09-18T00:00:00Z',
+    });
+    const none = normalizeAuthFileFingerprint({ identity_mode: 'fixed', clients: { versions: [] } });
+    expect(none?.clients).toBeUndefined();
+  });
+});
+
+describe('auth file fields patch: shape overrides', () => {
+  test('emits day, session, hours and pin changes and clears them with null / empty', () => {
+    const original = { rpd: 600, active_hours: '08:30-01:00', proxy_pool_label: 'jp-1' };
+    const patch = buildAuthFileFieldsPatch(
+      {
+        ...baseEditor(original),
+        rpd: '',
+        tpd: '100',
+        maxSessions: '4',
+        activeHours: '',
+        activeHoursTouched: true,
+        proxyPoolLabel: '',
+        proxyPoolLabelTouched: true,
+      },
+      resolve
+    );
+    expect(patch.rpd).toBeNull();
+    expect(patch.tpd).toBe(100);
+    expect(patch.max_sessions).toBe(4);
+    expect(patch.active_hours).toBe('');
+    expect(patch.proxy_pool_label).toBeNull();
+
+    expect(() =>
+      buildAuthFileFieldsPatch(
+        { ...baseEditor({}), activeHours: '9-5', activeHoursTouched: true },
+        resolve
+      )
+    ).toThrow('auth_files.active_hours_invalid');
   });
 });
