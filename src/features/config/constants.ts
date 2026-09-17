@@ -72,7 +72,15 @@ export const COMMON_FIELD_IDS = [
 export const SECTION_VALIDATION_FIELDS: Record<VisualSectionId, readonly VisualConfigFieldPath[]> =
   {
     connectivity: ['port'],
-    network: ['requestRetry', 'maxRetryCredentials', 'maxRetryInterval', 'authAutoRefreshWorkers'],
+    network: [
+      'requestRetry',
+      'maxRetryCredentials',
+      'maxRetryInterval',
+      'authAutoRefreshWorkers',
+      'credentialLimitsRpm',
+      'credentialLimitsTpm',
+      'credentialLimitsMaxConcurrent',
+    ],
     logging: ['errorLogsMaxFiles', 'logsMaxTotalSizeMb', 'redisUsageQueueRetentionSeconds'],
     quota: [],
     streaming: [
@@ -109,6 +117,9 @@ export const FIELD_VALUE_KEYS: Record<string, readonly string[]> = {
   maxRetryCredentials: ['maxRetryCredentials'],
   maxRetryInterval: ['maxRetryInterval'],
   authAutoRefreshWorkers: ['authAutoRefreshWorkers'],
+  credentialLimitsRpm: ['credentialLimitsRpm'],
+  credentialLimitsTpm: ['credentialLimitsTpm'],
+  credentialLimitsMaxConcurrent: ['credentialLimitsMaxConcurrent'],
   routingStrategy: ['routingStrategy'],
   disableImageGeneration: ['disableImageGeneration'],
   gptImage2BaseModel: ['gptImage2BaseModel'],

@@ -1,0 +1,152 @@
+.section {
+  border-block: 1px solid var(--border-color);
+  color: var(--text-secondary);
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.summary {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 40px;
+  padding-block: 8px;
+  cursor: pointer;
+  list-style: none;
+  border-radius: 4px;
+
+  &::-webkit-details-marker {
+    display: none;
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--primary-color);
+    outline-offset: 3px;
+  }
+}
+
+.summaryContent {
+  display: flex;
+  flex: 1;
+  min-width: 0;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.mode {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 4px 8px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.eyebrow {
+  font-family: $font-mono;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-tertiary);
+}
+
+.warningBadge {
+  padding: 1px 7px;
+  border: 1px solid var(--warning-border);
+  border-radius: $radius-full;
+  background: var(--warning-bg);
+  color: var(--warning-text);
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.userAgent {
+  font-family: $font-mono;
+  font-size: 11px;
+  color: var(--text-secondary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.chevron {
+  flex-shrink: 0;
+  color: var(--text-tertiary);
+}
+
+.section[open] .chevron {
+  transform: rotate(180deg);
+}
+
+.body {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-bottom: 10px;
+}
+
+.group {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  padding-top: 6px;
+  border-top: 1px solid var(--border-color);
+}
+
+.groupLabel {
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.kv {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin: 0;
+}
+
+.kvRow {
+  display: grid;
+  grid-template-columns: minmax(96px, 30%) 1fr;
+  gap: 8px;
+  align-items: baseline;
+}
+
+.kvKey {
+  font-family: $font-mono;
+  font-size: 11px;
+  color: var(--text-tertiary);
+  overflow-wrap: anywhere;
+}
+
+.kvValue {
+  margin: 0;
+  font-family: $font-mono;
+  font-size: 11px;
+  color: var(--text-secondary);
+  overflow-wrap: anywhere;
+}
+
+.warnings {
+  margin: 0;
+  padding-left: 16px;
+}
+
+.warning {
+  color: var(--warning-text);
+  overflow-wrap: anywhere;
+}
+
+.note {
+  margin: 0;
+  color: var(--text-tertiary);
+  font-size: 11px;
+  line-height: 1.5;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .summary:hover {
+    background: var(--bg-secondary);
+  }
+}

@@ -13,9 +13,12 @@ import type {
   PrefixProxyEditorState,
 } from '@/features/authFiles/hooks/useAuthFilesPrefixProxyEditor';
 import {
+  supportsAuthFileDeviceProfile,
   supportsAuthFileUsingApi,
   supportsAuthFileWebsockets,
 } from '@/features/authFiles/constants';
+import { CLAUDE_DEVICE_PROFILE_ARCH, CLAUDE_DEVICE_PROFILE_OS } from '@/features/authFiles/limits';
+import { Select } from '@/components/ui/Select';
 import { MAX_CREDENTIAL_WEIGHT } from '@/utils/credentialWeight';
 import { AuthFileExcludedModelsField } from './AuthFileExcludedModelsField';
 import styles from './AuthFileDetailsSheet.module.scss';
@@ -31,6 +34,9 @@ const DERIVED_INFO_KEYS = [
   'modified',
   // 'email' 不在此列：后端原始键名与 camelCase 同形，删掉会藏起真实数据。
   'projectId',
+  'maxConcurrent',
+  'limitsSnapshot',
+  'fingerprint',
 ];
 
 export type AuthFileDetailsSheetProps = {
@@ -153,7 +159,8 @@ export function AuthFileDetailsSheet(props: AuthFileDetailsSheetProps) {
               !dirty ||
               !editor?.json ||
               Boolean(editor?.headersTouched && editor.headersError) ||
-              Boolean(editor?.weightError)
+              Boolean(editor?.weightError) ||
+              Boolean(editor?.limitsError)
             }
           >
             {t('common.save')}
@@ -235,6 +242,77 @@ export function AuthFileDetailsSheet(props: AuthFileDetailsSheetProps) {
                     disabled={disableControls || editor.saving || !editor.json}
                     onChange={(e) => onChange('weight', e.target.value)}
                   />
+                  <div className={styles.limitsGrid}>
+                    <Input
+                      label={t('auth_files.limits_rpm_label')}
+                      type="number"
+                      min={0}
+                      step="1"
+                      value={editor.rpm}
+                      placeholder={t('auth_files.limits_inherit_placeholder')}
+                      disabled={disableControls || editor.saving || !editor.json}
+                      onChange={(e) => onChange('rpm', e.target.value)}
+                    />
+                    <Input
+                      label={t('auth_files.limits_tpm_label')}
+                      type="number"
+                      min={0}
+                      step="1"
+                      value={editor.tpm}
+                      placeholder={t('auth_files.limits_inherit_placeholder')}
+                      disabled={disableControls || editor.saving || !editor.json}
+                      onChange={(e) => onChange('tpm', e.target.value)}
+                    />
+                    <Input
+                      label={t('auth_files.limits_max_concurrent_label')}
+                      type="number"
+                      min={0}
+                      step="1"
+                      value={editor.maxConcurrent}
+                      placeholder={t('auth_files.limits_inherit_placeholder')}
+                      disabled={disableControls || editor.saving || !editor.json}
+                      onChange={(e) => onChange('maxConcurrent', e.target.value)}
+                    />
+                  </div>
+                  {editor.limitsError && <div className="error-box">{editor.limitsError}</div>}
+                  <div className="hint">{t('auth_files.limits_hint')}</div>
+                  {supportsAuthFileDeviceProfile(editor.providerKey) && (
+                    <div className="form-group">
+                      <label>{t('auth_files.device_profile_label')}</label>
+                      <div className={styles.limitsGrid}>
+                        <Select
+                          value={editor.deviceProfileOs}
+                          ariaLabel={t('auth_files.device_profile_os_label')}
+                          placeholder={t('auth_files.device_profile_inherit')}
+                          options={[
+                            { value: '', label: t('auth_files.device_profile_inherit') },
+                            ...CLAUDE_DEVICE_PROFILE_OS.map((value) => ({ value, label: value })),
+                          ]}
+                          disabled={disableControls || editor.saving || !editor.json}
+                          onChange={(value) => onChange('deviceProfileOs', value)}
+                        />
+                        <Select
+                          value={editor.deviceProfileArch}
+                          ariaLabel={t('auth_files.device_profile_arch_label')}
+                          placeholder={t('auth_files.device_profile_inherit')}
+                          options={[
+                            { value: '', label: t('auth_files.device_profile_inherit') },
+                            ...CLAUDE_DEVICE_PROFILE_ARCH.map((value) => ({ value, label: value })),
+                          ]}
+                          disabled={disableControls || editor.saving || !editor.json}
+                          onChange={(value) => onChange('deviceProfileArch', value)}
+                        />
+                      </div>
+                      {editor.deviceProfileSoftware && (
+                        <div className="hint">
+                          {t('auth_files.device_profile_software', {
+                            value: editor.deviceProfileSoftware,
+                          })}
+                        </div>
+                      )}
+                      <div className="hint">{t('auth_files.device_profile_hint')}</div>
+                    </div>
+                  )}
                   <div className="form-group">
                     <label>{t('auth_files.disable_cooling_label')}</label>
                     <ToggleSwitch

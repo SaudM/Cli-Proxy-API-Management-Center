@@ -1,0 +1,74 @@
+.section {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 4px 10px;
+  font-family: $font-mono;
+  font-size: 11.5px;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-secondary);
+}
+
+.eyebrow {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-tertiary);
+}
+
+.meter {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 2px 7px;
+  border: 1px solid var(--border-color);
+  border-radius: $radius-full;
+  line-height: 1.35;
+  white-space: nowrap;
+}
+
+.meterLabel {
+  font-weight: 650;
+  color: var(--text-tertiary);
+}
+
+.meterValue {
+  color: var(--text-primary);
+}
+
+.bar {
+  position: relative;
+  width: 34px;
+  height: 4px;
+  overflow: hidden;
+  border-radius: 2px;
+  background: var(--bg-tertiary, var(--border-color));
+}
+
+.barFill {
+  position: absolute;
+  inset: 0 auto 0 0;
+  border-radius: 2px;
+  background: var(--success-color);
+  transition: width 240ms ease;
+}
+
+.saturated {
+  border-color: var(--warning-border);
+  color: var(--warning-text);
+
+  .meterValue {
+    color: var(--warning-text);
+  }
+
+  .barFill {
+    background: var(--warning-color);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .barFill {
+    transition: none;
+  }
+}

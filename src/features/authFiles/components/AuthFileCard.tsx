@@ -33,6 +33,8 @@ import { resolveAuthFileQuotaType } from '@/features/authFiles/logic';
 import type { AuthFileStatusBarData } from '@/features/authFiles/hooks/useAuthFilesStatusBarCache';
 import { AuthFileQuotaSection } from '@/features/authFiles/components/AuthFileQuotaSection';
 import { AuthFileCooldownSection } from './AuthFileCooldownSection';
+import { AuthFileFingerprintSection } from './AuthFileFingerprintSection';
+import { AuthFileLimitsSection } from './AuthFileLimitsSection';
 import styles from './AuthFileCard.module.scss';
 
 export type AuthFileCardProps = {
@@ -178,6 +180,10 @@ export function AuthFileCard(props: AuthFileCardProps) {
       )}
 
       <AuthFileCooldownSection snapshot={file.cooldownSnapshot} />
+
+      <AuthFileLimitsSection snapshot={file.limitsSnapshot} />
+
+      {!compact && <AuthFileFingerprintSection fingerprint={file.fingerprint} />}
 
       <div className={styles.health}>
         <div className={styles.healthHead}>

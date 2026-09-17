@@ -14,6 +14,7 @@ import {
 } from '@/utils/recentRequests';
 import { parseTimestampMs } from '@/utils/timestamp';
 import { normalizeAuthFileCooldowns, normalizeCooldownTimestamp } from './authFileCooldowns';
+import { normalizeAuthFileFingerprint, normalizeAuthFileLimits } from './authFileLimits';
 
 type StatusError = { status?: number };
 type AuthFileStatusResponse = { status: string; disabled: boolean };
@@ -33,6 +34,12 @@ export type AuthFileFieldsPatch = {
   excluded_models?: string[];
   'excluded-models'?: string[];
   expired?: string;
+  /** Per-credential limit overrides; null clears the override (inherit global). */
+  rpm?: number | null;
+  tpm?: number | null;
+  max_concurrent?: number | null;
+  /** Claude device profile object; null clears it. */
+  device_profile?: Record<string, string> | null;
 };
 type AuthFileBatchFailure = { name: string; error: string };
 type AuthFileBatchUploadResponse = {
@@ -211,8 +218,13 @@ const mergeAuthFileEntries = (entries: AuthFileEntry[]): AuthFileEntry => {
 
   rest.forEach((entry) => {
     Object.entries(entry).forEach(([key, value]) => {
-      // Cooldown snapshots are atomic: [] and null are meaningful, not missing fields.
-      if (key === 'cooldowns' && Object.prototype.hasOwnProperty.call(merged, key)) return;
+      // Cooldown/limits/fingerprint objects are atomic runtime snapshots, never field-merged.
+      if (
+        (key === 'cooldowns' || key === 'limits' || key === 'fingerprint') &&
+        Object.prototype.hasOwnProperty.call(merged, key)
+      ) {
+        return;
+      }
       if (!hasMeaningfulValue(merged[key]) && hasMeaningfulValue(value)) {
         merged[key] = value;
       }
@@ -261,10 +273,20 @@ const normalizeAuthFileEntry = (
   const modified = readDateField(entry);
   const priority = readIntegerField(entry['priority']);
   const weight = readIntegerField(entry['weight']);
+  const rpm = readIntegerField(entry['rpm']);
+  const tpm = readIntegerField(entry['tpm']);
+  const maxConcurrent = readIntegerField(entry['max_concurrent']);
+  const limitsSnapshot = normalizeAuthFileLimits(entry['limits']);
+  const fingerprint = normalizeAuthFileFingerprint(entry['fingerprint']);
 
   return {
     ...entry,
     cooldownSnapshot: normalizeAuthFileCooldowns(entry.cooldowns, observedAt, receivedAtMs),
+    ...(rpm !== undefined && rpm >= 0 ? { rpm } : {}),
+    ...(tpm !== undefined && tpm >= 0 ? { tpm } : {}),
+    ...(maxConcurrent !== undefined && maxConcurrent >= 0 ? { maxConcurrent } : {}),
+    ...(limitsSnapshot ? { limitsSnapshot } : {}),
+    ...(fingerprint ? { fingerprint } : {}),
     runtimeOnly: readRuntimeOnlyField(entry),
     authIndex: normalizeRecentRequestAuthIndex(entry['auth_index'] ?? entry.authIndex),
     recentRequests: normalizeRecentRequestBuckets(entry.recent_requests ?? entry.recentRequests),

@@ -39,6 +39,12 @@ export function SectionNetwork({
     t,
     validationErrors?.authAutoRefreshWorkers
   );
+  const credentialLimitsRpmError = getValidationMessage(t, validationErrors?.credentialLimitsRpm);
+  const credentialLimitsTpmError = getValidationMessage(t, validationErrors?.credentialLimitsTpm);
+  const credentialLimitsMaxConcurrentError = getValidationMessage(
+    t,
+    validationErrors?.credentialLimitsMaxConcurrent
+  );
 
   const disableImageGenerationOptions = [
     {
@@ -117,6 +123,49 @@ export function SectionNetwork({
               disabled={disabled}
               hint={t('config_management.visual.sections.network.auth_auto_refresh_workers_hint')}
               error={authAutoRefreshWorkersError}
+            />
+          </FieldAnchor>
+          <FieldAnchor fieldId="credentialLimitsRpm">
+            <Input
+              label={t('config_management.visual.sections.network.credential_limits_rpm')}
+              type="number"
+              min={0}
+              placeholder="0"
+              value={values.credentialLimitsRpm}
+              onChange={(e) => onChange({ credentialLimitsRpm: e.target.value })}
+              disabled={disabled}
+              hint={t('config_management.visual.sections.network.credential_limits_rpm_hint')}
+              error={credentialLimitsRpmError}
+            />
+          </FieldAnchor>
+          <FieldAnchor fieldId="credentialLimitsTpm">
+            <Input
+              label={t('config_management.visual.sections.network.credential_limits_tpm')}
+              type="number"
+              min={0}
+              placeholder="0"
+              value={values.credentialLimitsTpm}
+              onChange={(e) => onChange({ credentialLimitsTpm: e.target.value })}
+              disabled={disabled}
+              hint={t('config_management.visual.sections.network.credential_limits_tpm_hint')}
+              error={credentialLimitsTpmError}
+            />
+          </FieldAnchor>
+          <FieldAnchor fieldId="credentialLimitsMaxConcurrent">
+            <Input
+              label={t(
+                'config_management.visual.sections.network.credential_limits_max_concurrent'
+              )}
+              type="number"
+              min={0}
+              placeholder="0"
+              value={values.credentialLimitsMaxConcurrent}
+              onChange={(e) => onChange({ credentialLimitsMaxConcurrent: e.target.value })}
+              disabled={disabled}
+              hint={t(
+                'config_management.visual.sections.network.credential_limits_max_concurrent_hint'
+              )}
+              error={credentialLimitsMaxConcurrentError}
             />
           </FieldAnchor>
           <FieldAnchor fieldId="routingStrategy">

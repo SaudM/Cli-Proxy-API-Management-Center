@@ -39,6 +39,42 @@ export interface AuthFileCooldownSnapshot {
   records: AuthFileCooldown[] | null;
 }
 
+/** One rolling 60-second window reported by the backend `limits` object. */
+export interface AuthFileLimitWindow {
+  /** Effective limit; 0 = unlimited. */
+  limit: number;
+  used: number;
+  /** Seconds until the oldest window bucket expires; 0 when idle. */
+  resetsInSeconds: number;
+}
+
+export interface AuthFileConcurrencyLimit {
+  /** Effective limit; 0 = unlimited. */
+  limit: number;
+  inFlight: number;
+}
+
+/** Effective per-credential limits plus live usage (backend `limits`). */
+export interface AuthFileLimitsSnapshot {
+  rpm: AuthFileLimitWindow;
+  tpm: AuthFileLimitWindow;
+  maxConcurrent: AuthFileConcurrencyLimit;
+}
+
+/** Read-only upstream identity report (backend `fingerprint`). Secrets are already redacted. */
+export interface AuthFileFingerprint {
+  identityMode: string;
+  userAgent: string;
+  ccVersion?: string;
+  authKind?: string;
+  session?: string;
+  client: Record<string, unknown>;
+  device: Record<string, unknown>;
+  transport: Record<string, unknown>;
+  credentialOverrides: Record<string, unknown>;
+  warnings: string[];
+}
+
 export interface AuthFileItem {
   name: string;
   type?: AuthFileType | string;
@@ -73,6 +109,14 @@ export interface AuthFileItem {
   recentRequests?: RecentRequestBucket[];
   /** Absent on older servers. Never interpreted as credential health. */
   cooldownSnapshot?: AuthFileCooldownSnapshot;
+  /** Per-credential overrides (absent = inherit the global credential-limits). */
+  rpm?: number;
+  tpm?: number;
+  maxConcurrent?: number;
+  /** Absent on servers without per-credential limits. */
+  limitsSnapshot?: AuthFileLimitsSnapshot;
+  /** Absent on servers without fingerprint reporting. */
+  fingerprint?: AuthFileFingerprint;
   [key: string]: unknown;
 }
 

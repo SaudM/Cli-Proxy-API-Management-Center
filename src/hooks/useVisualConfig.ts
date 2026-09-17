@@ -120,6 +120,13 @@ function setStringListInDoc(doc: YamlDocument, path: YamlPath, values: string[])
   if (docHas(doc, path)) doc.deleteIn(path);
 }
 
+/** Reads one scalar of the `credential-limits` map as form text; absent → ''. */
+function readCredentialLimitText(section: unknown, key: string): string {
+  if (!section || typeof section !== 'object' || Array.isArray(section)) return '';
+  const value = (section as Record<string, unknown>)[key];
+  return value === undefined || value === null ? '' : String(value);
+}
+
 function setIntFromStringInDoc(doc: YamlDocument, path: YamlPath, value: unknown): void {
   const safe = typeof value === 'string' ? value : '';
   const trimmed = safe.trim();
@@ -208,6 +215,9 @@ export function getVisualConfigValidationErrors(
     maxRetryCredentials: getIntegerError(values.maxRetryCredentials),
     maxRetryInterval: getIntegerError(values.maxRetryInterval),
     authAutoRefreshWorkers: getIntegerError(values.authAutoRefreshWorkers),
+    credentialLimitsRpm: getNonNegativeIntegerError(values.credentialLimitsRpm),
+    credentialLimitsTpm: getNonNegativeIntegerError(values.credentialLimitsTpm),
+    credentialLimitsMaxConcurrent: getNonNegativeIntegerError(values.credentialLimitsMaxConcurrent),
     'streaming.keepaliveSeconds': getIntegerError(values.streaming.keepaliveSeconds),
     'streaming.bootstrapRetries': getIntegerError(values.streaming.bootstrapRetries),
     'streaming.nonstreamKeepaliveInterval': getIntegerError(
@@ -1111,6 +1121,9 @@ function getNextDirtyFields(
       'requestRetry',
       'maxRetryCredentials',
       'maxRetryInterval',
+      'credentialLimitsRpm',
+      'credentialLimitsTpm',
+      'credentialLimitsMaxConcurrent',
       'wsAuth',
       'quotaSwitchProject',
       'quotaSwitchPreviewModel',
@@ -1336,6 +1349,12 @@ export function useVisualConfig() {
         requestRetry: String(parsed['request-retry'] ?? ''),
         maxRetryCredentials: String(parsed['max-retry-credentials'] ?? ''),
         maxRetryInterval: String(parsed['max-retry-interval'] ?? ''),
+        credentialLimitsRpm: readCredentialLimitText(parsed['credential-limits'], 'rpm'),
+        credentialLimitsTpm: readCredentialLimitText(parsed['credential-limits'], 'tpm'),
+        credentialLimitsMaxConcurrent: readCredentialLimitText(
+          parsed['credential-limits'],
+          'max-concurrent'
+        ),
         disableCooling: Boolean(parsed['disable-cooling']),
         disableImageGeneration: parseDisableImageGenerationMode(parsed['disable-image-generation']),
         gptImage2BaseModel:
@@ -1566,6 +1585,27 @@ export function useVisualConfig() {
         }
         if (dirtyFields.has('maxRetryInterval')) {
           setIntFromStringInDoc(doc, ['max-retry-interval'], values.maxRetryInterval);
+        }
+        const credentialLimitsDirty =
+          dirtyFields.has('credentialLimitsRpm') ||
+          dirtyFields.has('credentialLimitsTpm') ||
+          dirtyFields.has('credentialLimitsMaxConcurrent');
+        if (credentialLimitsDirty) {
+          ensureMapInDoc(doc, ['credential-limits']);
+          if (dirtyFields.has('credentialLimitsRpm')) {
+            setIntFromStringInDoc(doc, ['credential-limits', 'rpm'], values.credentialLimitsRpm);
+          }
+          if (dirtyFields.has('credentialLimitsTpm')) {
+            setIntFromStringInDoc(doc, ['credential-limits', 'tpm'], values.credentialLimitsTpm);
+          }
+          if (dirtyFields.has('credentialLimitsMaxConcurrent')) {
+            setIntFromStringInDoc(
+              doc,
+              ['credential-limits', 'max-concurrent'],
+              values.credentialLimitsMaxConcurrent
+            );
+          }
+          deleteIfMapEmpty(doc, ['credential-limits']);
         }
         if (dirtyFields.has('disableCooling')) {
           setBooleanInDoc(doc, ['disable-cooling'], values.disableCooling);

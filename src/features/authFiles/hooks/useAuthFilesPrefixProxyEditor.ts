@@ -11,9 +11,18 @@ import {
   readAuthFileDisableCooling,
   readAuthFileWebsockets,
   readAuthFileUsingApi,
+  supportsAuthFileDeviceProfile,
   supportsAuthFileWebsockets,
   supportsAuthFileUsingApi,
 } from '@/features/authFiles/constants';
+import {
+  buildClaudeDeviceProfilePatch,
+  isValidLimitText,
+  parseLimitText,
+  readClaudeDeviceProfile,
+  readLimitOverride,
+  readMaxConcurrentOverride,
+} from '@/features/authFiles/limits';
 import {
   parseCredentialWeightText,
   readCredentialWeight,
@@ -29,7 +38,9 @@ type AuthFileHeadersErrorKey =
 type AuthFileContentErrorKey =
   'auth_files.prefix_proxy_invalid_json' | 'auth_files.prefix_proxy_html_challenge';
 type AuthFileWeightErrorKey = 'auth_files.weight_invalid_integer' | 'auth_files.weight_invalid_max';
-type AuthFileEditorErrorKey = AuthFileHeadersErrorKey | AuthFileWeightErrorKey;
+type AuthFileLimitErrorKey = 'auth_files.limit_invalid_integer';
+type AuthFileEditorErrorKey =
+  AuthFileHeadersErrorKey | AuthFileWeightErrorKey | AuthFileLimitErrorKey;
 
 export type PrefixProxyEditorField =
   | 'prefix'
@@ -41,7 +52,12 @@ export type PrefixProxyEditorField =
   | 'usingApi'
   | 'note'
   | 'excludedModelsText'
-  | 'headersText';
+  | 'headersText'
+  | 'rpm'
+  | 'tpm'
+  | 'maxConcurrent'
+  | 'deviceProfileOs'
+  | 'deviceProfileArch';
 
 export type PrefixProxyEditorFieldValue = string | boolean;
 
@@ -74,6 +90,16 @@ export type PrefixProxyEditorState = {
   headersText: string;
   headersTouched: boolean;
   headersError: string | null;
+  /** Per-credential limit overrides as text; empty = inherit the global credential-limits. */
+  rpm: string;
+  tpm: string;
+  maxConcurrent: string;
+  limitsError: string | null;
+  /** Claude device profile platform fields; the software triple is display-only. */
+  deviceProfileOs: string;
+  deviceProfileArch: string;
+  deviceProfileTouched: boolean;
+  deviceProfileSoftware: string;
 };
 
 export type UseAuthFilesPrefixProxyEditorOptions = {
@@ -317,6 +343,45 @@ export const buildAuthFileFieldsPatch = (
     patch.weight = nextWeight;
   }
 
+  const limitFields: Array<{
+    text: string;
+    original: number | undefined;
+    key: 'rpm' | 'tpm' | 'max_concurrent';
+  }> = [
+    { text: editor.rpm ?? '', original: readLimitOverride(original.rpm), key: 'rpm' },
+    { text: editor.tpm ?? '', original: readLimitOverride(original.tpm), key: 'tpm' },
+    {
+      text: editor.maxConcurrent ?? '',
+      original: readMaxConcurrentOverride(original),
+      key: 'max_concurrent',
+    },
+  ];
+  limitFields.forEach(({ text, original: originalLimit, key }) => {
+    if (!isValidLimitText(text)) {
+      throw new Error(resolveError('auth_files.limit_invalid_integer'));
+    }
+    const nextLimit = parseLimitText(text);
+    if (nextLimit === undefined) {
+      if (originalLimit !== undefined) patch[key] = null;
+    } else if (nextLimit !== originalLimit) {
+      patch[key] = nextLimit;
+    }
+  });
+
+  if (supportsAuthFileDeviceProfile(editor.providerKey) && editor.deviceProfileTouched) {
+    const originalProfile = readClaudeDeviceProfile(original);
+    const nextProfile = {
+      ...originalProfile,
+      os: (editor.deviceProfileOs ?? '').trim(),
+      arch: (editor.deviceProfileArch ?? '').trim(),
+    };
+    const originalPatch = buildClaudeDeviceProfilePatch(originalProfile);
+    const nextPatch = buildClaudeDeviceProfilePatch(nextProfile);
+    if (JSON.stringify(originalPatch) !== JSON.stringify(nextPatch)) {
+      patch.device_profile = nextPatch;
+    }
+  }
+
   if (editor.disableCoolingTouched) {
     const originalDisableCooling = readAuthFileDisableCooling(original);
     const nextDisableCooling = Boolean(editor.disableCooling);
@@ -416,6 +481,25 @@ const buildPrefixProxyUpdatedText = (
     }
   }
 
+  (['rpm', 'tpm', 'max_concurrent'] as const).forEach((key) => {
+    const value = patch[key];
+    if (value === undefined) return;
+    if (value === null) {
+      delete next[key];
+      if (key === 'max_concurrent') delete next['max-concurrent'];
+    } else {
+      next[key] = value;
+    }
+  });
+
+  if (patch.device_profile !== undefined) {
+    if (patch.device_profile === null) {
+      delete next.device_profile;
+    } else {
+      next.device_profile = patch.device_profile;
+    }
+  }
+
   if (patch.disable_cooling !== undefined) {
     next.disable_cooling = patch.disable_cooling;
   }
@@ -462,7 +546,8 @@ export function useAuthFilesPrefixProxyEditor(
 
   const hasBlockingValidationError = Boolean(
     (prefixProxyEditor?.headersTouched && prefixProxyEditor.headersError) ||
-    prefixProxyEditor?.weightError
+    prefixProxyEditor?.weightError ||
+    prefixProxyEditor?.limitsError
   );
   const prefixProxyUpdatedText =
     prefixProxyEditor && !hasBlockingValidationError
@@ -519,6 +604,14 @@ export function useAuthFilesPrefixProxyEditor(
       headersText: '',
       headersTouched: false,
       headersError: null,
+      rpm: '',
+      tpm: '',
+      maxConcurrent: '',
+      limitsError: null,
+      deviceProfileOs: '',
+      deviceProfileArch: '',
+      deviceProfileTouched: false,
+      deviceProfileSoftware: '',
     });
 
     try {
@@ -574,6 +667,17 @@ export function useAuthFilesPrefixProxyEditor(
         const { errorKey } = parseHeadersText(headersText);
         headersError = errorKey ? t(errorKey) : null;
       }
+      const rpm = readLimitOverride(json.rpm);
+      const tpm = readLimitOverride(json.tpm);
+      const maxConcurrent = readMaxConcurrentOverride(json);
+      const deviceProfile = supportsAuthFileDeviceProfile(providerKey)
+        ? readClaudeDeviceProfile(json)
+        : { os: '', arch: '' };
+      const deviceProfileSoftware = deviceProfile.userAgent
+        ? [deviceProfile.userAgent, deviceProfile.packageVersion, deviceProfile.runtimeVersion]
+            .filter(Boolean)
+            .join(' · ')
+        : '';
 
       setPrefixProxyEditor((prev) => {
         if (!prev || prev.fileName !== name) return prev;
@@ -603,6 +707,14 @@ export function useAuthFilesPrefixProxyEditor(
           headersText,
           headersTouched: false,
           headersError,
+          rpm: rpm !== undefined ? String(rpm) : '',
+          tpm: tpm !== undefined ? String(tpm) : '',
+          maxConcurrent: maxConcurrent !== undefined ? String(maxConcurrent) : '',
+          limitsError: null,
+          deviceProfileOs: deviceProfile.os,
+          deviceProfileArch: deviceProfile.arch,
+          deviceProfileTouched: false,
+          deviceProfileSoftware,
           error: null,
         };
       });
@@ -664,6 +776,19 @@ export function useAuthFilesPrefixProxyEditor(
           headersTouched: true,
           headersError: errorKey ? t(errorKey) : null,
         };
+      }
+      if (field === 'rpm' || field === 'tpm' || field === 'maxConcurrent') {
+        const next = { ...prev, [field]: String(value) };
+        const invalid = [next.rpm, next.tpm, next.maxConcurrent].some(
+          (text) => !isValidLimitText(text)
+        );
+        return { ...next, limitsError: invalid ? t('auth_files.limit_invalid_integer') : null };
+      }
+      if (field === 'deviceProfileOs') {
+        return { ...prev, deviceProfileOs: String(value), deviceProfileTouched: true };
+      }
+      if (field === 'deviceProfileArch') {
+        return { ...prev, deviceProfileArch: String(value), deviceProfileTouched: true };
       }
       return prev;
     });

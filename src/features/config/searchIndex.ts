@@ -152,6 +152,27 @@ export const CONFIG_FIELD_SEARCH_INDEX: ConfigFieldSearchEntry[] = [
     yamlKeys: ['auth-auto-refresh-workers'],
   },
   {
+    fieldId: 'credentialLimitsRpm',
+    sectionId: 'network',
+    labelKey: L('sections.network.credential_limits_rpm'),
+    hintKey: L('sections.network.credential_limits_rpm_hint'),
+    yamlKeys: ['credential-limits', 'rpm'],
+  },
+  {
+    fieldId: 'credentialLimitsTpm',
+    sectionId: 'network',
+    labelKey: L('sections.network.credential_limits_tpm'),
+    hintKey: L('sections.network.credential_limits_tpm_hint'),
+    yamlKeys: ['credential-limits', 'tpm'],
+  },
+  {
+    fieldId: 'credentialLimitsMaxConcurrent',
+    sectionId: 'network',
+    labelKey: L('sections.network.credential_limits_max_concurrent'),
+    hintKey: L('sections.network.credential_limits_max_concurrent_hint'),
+    yamlKeys: ['credential-limits', 'max-concurrent'],
+  },
+  {
     fieldId: 'routingStrategy',
     sectionId: 'network',
     labelKey: L('sections.network.routing_strategy'),

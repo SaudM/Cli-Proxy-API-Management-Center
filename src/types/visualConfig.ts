@@ -15,6 +15,9 @@ export type VisualConfigFieldPath =
   | 'maxRetryCredentials'
   | 'maxRetryInterval'
   | 'authAutoRefreshWorkers'
+  | 'credentialLimitsRpm'
+  | 'credentialLimitsTpm'
+  | 'credentialLimitsMaxConcurrent'
   | 'streaming.keepaliveSeconds'
   | 'streaming.bootstrapRetries'
   | 'streaming.nonstreamKeepaliveInterval';
@@ -111,6 +114,10 @@ export type VisualConfigValues = {
   requestRetry: string;
   maxRetryCredentials: string;
   maxRetryInterval: string;
+  /** Global credential-limits defaults as text; empty = key absent (unlimited). */
+  credentialLimitsRpm: string;
+  credentialLimitsTpm: string;
+  credentialLimitsMaxConcurrent: string;
   disableCooling: boolean;
   disableImageGeneration: DisableImageGenerationMode;
   gptImage2BaseModel: string;
@@ -177,6 +184,9 @@ export const DEFAULT_VISUAL_VALUES: VisualConfigValues = {
   requestRetry: '',
   maxRetryCredentials: '',
   maxRetryInterval: '',
+  credentialLimitsRpm: '',
+  credentialLimitsTpm: '',
+  credentialLimitsMaxConcurrent: '',
   disableCooling: false,
   disableImageGeneration: 'false',
   gptImage2BaseModel: '',

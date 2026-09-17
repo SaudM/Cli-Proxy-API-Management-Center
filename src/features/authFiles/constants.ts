@@ -225,6 +225,10 @@ export const applyAuthFileWebsockets = (
 export const supportsAuthFileUsingApi = (providerKey: string): boolean =>
   AUTH_FILE_USING_API_PROVIDERS.has(normalizeProviderKey(providerKey));
 
+/** Only Claude credentials carry a device profile (User-Agent / Stainless platform tuple). */
+export const supportsAuthFileDeviceProfile = (providerKey: string): boolean =>
+  normalizeProviderKey(providerKey) === 'claude';
+
 export const readAuthFileUsingApi = (value: Record<string, unknown>): boolean =>
   parseDisableCoolingValue(value.using_api) ?? false;
 
