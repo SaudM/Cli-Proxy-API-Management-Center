@@ -285,6 +285,13 @@ export function useAuthFilesData(options?: UseAuthFilesDataOptions): UseAuthFile
           const details = result.failed.map((item) => `${item.name}: ${item.error}`).join('; ');
           showNotification(`${t('notification.upload_failed')}: ${details}`, 'error');
         }
+        const warningEntries = Object.entries(result.warnings);
+        if (warningEntries.length > 0) {
+          const details = warningEntries
+            .map(([name, list]) => `${name}: ${list.join('; ')}`)
+            .join(' | ');
+          showNotification(t('auth_files.upload_warnings', { details }), 'warning');
+        }
       } catch (err: unknown) {
         const errorMessage = err instanceof Error ? err.message : 'Unknown error';
         showNotification(`${t('notification.upload_failed')}: ${errorMessage}`, 'error');

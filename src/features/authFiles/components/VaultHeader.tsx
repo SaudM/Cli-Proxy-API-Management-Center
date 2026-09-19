@@ -1,6 +1,6 @@
 import { useTranslation } from 'react-i18next';
 import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
-import { IconRefreshCw, IconUpload } from '@/components/ui/icons';
+import { IconFileText, IconRefreshCw, IconUpload } from '@/components/ui/icons';
 import { useRevealGroup } from '@/hooks/motion';
 import styles from './VaultHeader.module.scss';
 
@@ -14,6 +14,8 @@ export type VaultHeaderProps = {
   disableControls: boolean;
   onUpload: () => void;
   onRefresh: () => void;
+  /** Opens the minimal auth-file template dialog. */
+  onTemplate?: () => void;
 };
 
 /**
@@ -31,6 +33,7 @@ export function VaultHeader(props: VaultHeaderProps) {
     disableControls,
     onUpload,
     onRefresh,
+    onTemplate,
   } = props;
   const { t } = useTranslation();
   const revealRef = useRevealGroup<HTMLElement>();
@@ -73,6 +76,17 @@ export function VaultHeader(props: VaultHeaderProps) {
           <IconRefreshCw size={14} className={refreshing ? styles.spinning : undefined} />
           {t('common.refresh')}
         </button>
+        {onTemplate && (
+          <button
+            type="button"
+            className={styles.ghostAction}
+            onClick={onTemplate}
+            disabled={disableControls}
+          >
+            <IconFileText size={14} />
+            {t('auth_files.template_button')}
+          </button>
+        )}
         <button
           type="button"
           className={styles.primaryAction}

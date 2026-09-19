@@ -24,6 +24,7 @@ import {
 import { AuthFileCard } from '@/features/authFiles/components/AuthFileCard';
 import { AuthFileDetailsSheet } from '@/features/authFiles/components/AuthFileDetailsSheet';
 import { AuthFileModelsModal } from '@/features/authFiles/components/AuthFileModelsModal';
+import { AuthFileTemplateModal } from '@/features/authFiles/components/AuthFileTemplateModal';
 import { AuthFilesToolbar } from '@/features/authFiles/components/AuthFilesToolbar';
 import { BatchActionBar } from '@/features/authFiles/components/BatchActionBar';
 import { OAuthExcludedCard } from '@/features/authFiles/components/OAuthExcludedCard';
@@ -77,6 +78,7 @@ const normalizePersistedStatusFilterMode = (value: unknown): AuthFilesStatusFilt
 
 export function AuthFilesPage() {
   const { t } = useTranslation();
+  const [templateOpen, setTemplateOpen] = useState(false);
   const showNotification = useNotificationStore((state) => state.showNotification);
   const connectionStatus = useAuthStore((state) => state.connectionStatus);
   const resolvedTheme: ResolvedTheme = useThemeStore((state) => state.resolvedTheme);
@@ -583,7 +585,9 @@ export function AuthFilesPage() {
         disableControls={disableControls}
         onUpload={handleUploadClick}
         onRefresh={() => void handleHeaderRefresh()}
+        onTemplate={() => setTemplateOpen(true)}
       />
+      <AuthFileTemplateModal open={templateOpen} onClose={() => setTemplateOpen(false)} />
       <input
         ref={fileInputRef}
         type="file"

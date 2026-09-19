@@ -54,6 +54,8 @@ type AuthFileBatchUploadResponse = {
   uploaded?: number;
   files?: unknown;
   failed?: unknown;
+  /** Single upload: string[]; batch upload: { [fileName]: string[] }. */
+  warnings?: unknown;
 };
 type AuthFileBatchDeleteResponse = {
   status?: string;
@@ -66,6 +68,8 @@ type AuthFileBatchUploadResult = {
   uploaded: number;
   files: string[];
   failed: AuthFileBatchFailure[];
+  /** Recommended keys a stored file lacks, keyed by file name. */
+  warnings: Record<string, string[]>;
 };
 type AuthFileBatchDeleteResult = {
   status: string;
@@ -133,8 +137,32 @@ const normalizeBatchUploadResponse = (
     uploaded: payload?.uploaded ?? (inferFromRequest ? requestedNames.length : 0),
     files: filesFromPayload.length ? filesFromPayload : inferFromRequest ? [...requestedNames] : [],
     failed,
+    warnings: normalizeUploadWarnings(payload?.warnings, requestedNames),
   };
 };
+
+const normalizeWarningList = (value: unknown): string[] =>
+  Array.isArray(value)
+    ? value.filter((item): item is string => typeof item === 'string' && item.trim() !== '')
+    : [];
+
+/** Single uploads return a bare list; batch uploads key lists by file name. */
+export function normalizeUploadWarnings(
+  value: unknown,
+  requestedNames: string[]
+): Record<string, string[]> {
+  if (Array.isArray(value)) {
+    const list = normalizeWarningList(value);
+    return list.length > 0 ? { [requestedNames[0] ?? '']: list } : {};
+  }
+  if (!value || typeof value !== 'object') return {};
+  const out: Record<string, string[]> = {};
+  for (const [name, list] of Object.entries(value as Record<string, unknown>)) {
+    const warnings = normalizeWarningList(list);
+    if (warnings.length > 0) out[name] = warnings;
+  }
+  return out;
+}
 
 const normalizeBatchDeleteResponse = (
   payload: AuthFileBatchDeleteResponse | undefined,
@@ -498,7 +526,7 @@ export const authFilesApi = {
   uploadFiles: async (files: File[]): Promise<AuthFileBatchUploadResult> => {
     const requestedNames = files.map((file) => file.name);
     if (requestedNames.length === 0) {
-      return { status: 'ok', uploaded: 0, files: [], failed: [] };
+      return { status: 'ok', uploaded: 0, files: [], failed: [], warnings: {} };
     }
 
     const formData = new FormData();
