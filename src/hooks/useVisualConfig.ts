@@ -1149,6 +1149,7 @@ function getNextDirtyFields(
       'debug',
       'commercialMode',
       'loggingToFile',
+      'requestLog',
       'logsMaxTotalSizeMb',
       'proxyUrl',
       'forceModelPrefix',
@@ -1172,6 +1173,9 @@ function getNextDirtyFields(
       'routingStrategy',
       'routingSessionAffinity',
       'routingSessionAffinityTTL',
+      'lineClassifierUrl',
+      'lineClassifierKey',
+      'lineClassifierModel',
     ] as Array<keyof VisualConfigValues>
   ).forEach(updateScalarDirty);
 
@@ -1377,6 +1381,7 @@ export function useVisualConfig() {
         debug: Boolean(parsed.debug),
         commercialMode: Boolean(parsed['commercial-mode']),
         loggingToFile: Boolean(parsed['logging-to-file']),
+        requestLog: Boolean(parsed['request-log']),
         logsMaxTotalSizeMb: String(parsed['logs-max-total-size-mb'] ?? ''),
         errorLogsMaxFiles: String(parsed['error-logs-max-files'] ?? ''),
         usageStatisticsEnabled: Boolean(parsed['usage-statistics-enabled']),
@@ -1398,11 +1403,26 @@ export function useVisualConfig() {
         ),
         credentialLimitsRpd: readCredentialLimitText(parsed['credential-limits'], 'rpd'),
         credentialLimitsTpd: readCredentialLimitText(parsed['credential-limits'], 'tpd'),
-        credentialLimitsMaxSessions: readCredentialLimitText(parsed['credential-limits'], 'max-sessions'),
-        credentialLimitsSessionWindowMinutes: readCredentialLimitText(parsed['credential-limits'], 'session-window-minutes'),
-        credentialLimitsActiveHours: readCredentialLimitText(parsed['credential-limits'], 'active-hours'),
-        credentialLimitsActiveHoursJitterMinutes: readCredentialLimitText(parsed['credential-limits'], 'active-hours-jitter-minutes'),
-        credentialLimitsLimitJitterPercent: readCredentialLimitText(parsed['credential-limits'], 'limit-jitter-percent'),
+        credentialLimitsMaxSessions: readCredentialLimitText(
+          parsed['credential-limits'],
+          'max-sessions'
+        ),
+        credentialLimitsSessionWindowMinutes: readCredentialLimitText(
+          parsed['credential-limits'],
+          'session-window-minutes'
+        ),
+        credentialLimitsActiveHours: readCredentialLimitText(
+          parsed['credential-limits'],
+          'active-hours'
+        ),
+        credentialLimitsActiveHoursJitterMinutes: readCredentialLimitText(
+          parsed['credential-limits'],
+          'active-hours-jitter-minutes'
+        ),
+        credentialLimitsLimitJitterPercent: readCredentialLimitText(
+          parsed['credential-limits'],
+          'limit-jitter-percent'
+        ),
         disableCooling: Boolean(parsed['disable-cooling']),
         disableImageGeneration: parseDisableImageGenerationMode(parsed['disable-image-generation']),
         gptImage2BaseModel:
@@ -1467,6 +1487,19 @@ export function useVisualConfig() {
               : typeof routing?.['sessionAffinityTTL'] === 'string'
                 ? routing['sessionAffinityTTL']
                 : '',
+        lineClassifierUrl:
+          typeof asRecord(routing?.['line-classifier'] ?? routing?.lineClassifier)?.url === 'string'
+            ? String(asRecord(routing?.['line-classifier'] ?? routing?.lineClassifier)?.url)
+            : '',
+        lineClassifierKey:
+          typeof asRecord(routing?.['line-classifier'] ?? routing?.lineClassifier)?.key === 'string'
+            ? String(asRecord(routing?.['line-classifier'] ?? routing?.lineClassifier)?.key)
+            : '',
+        lineClassifierModel:
+          typeof asRecord(routing?.['line-classifier'] ?? routing?.lineClassifier)?.model ===
+          'string'
+            ? String(asRecord(routing?.['line-classifier'] ?? routing?.lineClassifier)?.model)
+            : '',
 
         payloadDefaultRules: parsePayloadRules(payload?.default),
         payloadDefaultRawRules: parseRawPayloadRules(payload?.['default-raw']),
@@ -1598,6 +1631,9 @@ export function useVisualConfig() {
         if (dirtyFields.has('commercialMode')) {
           setBooleanInDoc(doc, ['commercial-mode'], values.commercialMode);
         }
+        if (dirtyFields.has('requestLog')) {
+          setBooleanInDoc(doc, ['request-log'], values.requestLog);
+        }
         if (dirtyFields.has('loggingToFile')) {
           setBooleanInDoc(doc, ['logging-to-file'], values.loggingToFile);
         }
@@ -1667,19 +1703,39 @@ export function useVisualConfig() {
             setIntFromStringInDoc(doc, ['credential-limits', 'tpd'], values.credentialLimitsTpd);
           }
           if (dirtyFields.has('credentialLimitsMaxSessions')) {
-            setIntFromStringInDoc(doc, ['credential-limits', 'max-sessions'], values.credentialLimitsMaxSessions);
+            setIntFromStringInDoc(
+              doc,
+              ['credential-limits', 'max-sessions'],
+              values.credentialLimitsMaxSessions
+            );
           }
           if (dirtyFields.has('credentialLimitsSessionWindowMinutes')) {
-            setIntFromStringInDoc(doc, ['credential-limits', 'session-window-minutes'], values.credentialLimitsSessionWindowMinutes);
+            setIntFromStringInDoc(
+              doc,
+              ['credential-limits', 'session-window-minutes'],
+              values.credentialLimitsSessionWindowMinutes
+            );
           }
           if (dirtyFields.has('credentialLimitsActiveHours')) {
-            setStringInDoc(doc, ['credential-limits', 'active-hours'], values.credentialLimitsActiveHours);
+            setStringInDoc(
+              doc,
+              ['credential-limits', 'active-hours'],
+              values.credentialLimitsActiveHours
+            );
           }
           if (dirtyFields.has('credentialLimitsActiveHoursJitterMinutes')) {
-            setIntFromStringInDoc(doc, ['credential-limits', 'active-hours-jitter-minutes'], values.credentialLimitsActiveHoursJitterMinutes);
+            setIntFromStringInDoc(
+              doc,
+              ['credential-limits', 'active-hours-jitter-minutes'],
+              values.credentialLimitsActiveHoursJitterMinutes
+            );
           }
           if (dirtyFields.has('credentialLimitsLimitJitterPercent')) {
-            setIntFromStringInDoc(doc, ['credential-limits', 'limit-jitter-percent'], values.credentialLimitsLimitJitterPercent);
+            setIntFromStringInDoc(
+              doc,
+              ['credential-limits', 'limit-jitter-percent'],
+              values.credentialLimitsLimitJitterPercent
+            );
           }
           deleteIfMapEmpty(doc, ['credential-limits']);
         }
@@ -1851,6 +1907,30 @@ export function useVisualConfig() {
             );
           }
           deleteIfMapEmpty(doc, ['routing']);
+        }
+
+        const lineClassifierDirty =
+          dirtyFields.has('lineClassifierUrl') ||
+          dirtyFields.has('lineClassifierKey') ||
+          dirtyFields.has('lineClassifierModel');
+        if (lineClassifierDirty) {
+          ensureMapInDoc(doc, ['routing', 'line-classifier']);
+          if (dirtyFields.has('lineClassifierUrl')) {
+            const url = values.lineClassifierUrl.trim();
+            if (url === '') doc.deleteIn(['routing', 'line-classifier', 'url']);
+            else setStringInDoc(doc, ['routing', 'line-classifier', 'url'], url);
+          }
+          if (dirtyFields.has('lineClassifierModel')) {
+            const model = values.lineClassifierModel.trim();
+            if (model === '') doc.deleteIn(['routing', 'line-classifier', 'model']);
+            else setStringInDoc(doc, ['routing', 'line-classifier', 'model'], model);
+          }
+          if (dirtyFields.has('lineClassifierKey')) {
+            const key = values.lineClassifierKey.trim();
+            if (key === '') doc.deleteIn(['routing', 'line-classifier', 'key']);
+            else setStringInDoc(doc, ['routing', 'line-classifier', 'key'], key);
+          }
+          deleteIfMapEmpty(doc, ['routing', 'line-classifier']);
         }
 
         const keepaliveSeconds =

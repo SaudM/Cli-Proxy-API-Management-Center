@@ -1080,7 +1080,12 @@
         },
         "logging": {
           "title": "Logging & Diagnostics",
-          "description": "Debug, log output, and usage statistics"
+          "description": "Debug, log output, and usage statistics",
+          "group_output": "Log output",
+          "group_capacity": "Log size",
+          "group_commercial": "Commercial mode",
+          "group_usage": "Usage statistics",
+          "yaml_keys_hint": "(grey text is the config-file key)"
         },
         "advanced": {
           "title": "Advanced & Experimental",
@@ -1176,7 +1181,9 @@
           "antigravity_signature_cache": "Enable Antigravity Signature Cache",
           "antigravity_signature_cache_desc": "Prefer and validate cached thinking-block signatures",
           "antigravity_signature_strict": "Strict Bypass Signature Validation",
-          "antigravity_signature_strict_desc": "Only applies when the signature cache is disabled; validates the full Claude protobuf tree"
+          "antigravity_signature_strict_desc": "Only applies when the signature cache is disabled; validates the full Claude protobuf tree",
+          "request_log": "Request log",
+          "request_log_desc": "Log every request and response, including prompt content. Enable only while debugging."
         },
         "headers": {
           "title": "Header Defaults",
@@ -1263,7 +1270,18 @@
           "credential_limits_active_hours_jitter_minutes": "Active Hours Jitter (minutes)",
           "credential_limits_active_hours_jitter_minutes_hint": "Shifts each credential's window edges by a stable per-credential, per-day offset within ±N minutes, so accounts do not switch on and off at the same instant.",
           "credential_limits_limit_jitter_percent": "Limit Jitter (%)",
-          "credential_limits_limit_jitter_percent_hint": "Scales rpm/tpm/rpd/tpd per credential by a stable offset within ±N % (max 50) so accounts do not share identical caps. Cards show the effective value."
+          "credential_limits_limit_jitter_percent_hint": "Scales rpm/tpm/rpd/tpd per credential by a stable offset within ±N % (max 50) so accounts do not share identical caps. Cards show the effective value.",
+          "line_classifier_url": "Classifier URL (OpenAI-compatible; leave empty to disable)",
+          "line_classifier_key": "Classifier API key",
+          "line_classifier_model": "Classifier model ID (e.g. deepseek-v4-flash)",
+          "line_classifier_note": "The fixed line table and default line live in routing.line-classifier in the config file; changing the table requires a container restart.",
+          "group_proxy_retry": "Proxy & retries",
+          "group_credentials": "Credential rotation & limits",
+          "group_routing": "Routing & sessions",
+          "group_classifier": "Session line classifier",
+          "group_image": "Image generation",
+          "group_misc": "Compatibility & other",
+          "yaml_keys_hint": "(grey text is the config-file key)"
         },
         "quota": {
           "title": "Quota Fallback",

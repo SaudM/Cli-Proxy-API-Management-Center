@@ -116,6 +116,7 @@ export type VisualConfigValues = {
   debug: boolean;
   commercialMode: boolean;
   loggingToFile: boolean;
+  requestLog: boolean;
   logsMaxTotalSizeMb: string;
   errorLogsMaxFiles: string;
   usageStatisticsEnabled: boolean;
@@ -148,6 +149,9 @@ export type VisualConfigValues = {
   routingStrategy: RoutingStrategy;
   routingSessionAffinity: boolean;
   routingSessionAffinityTTL: string;
+  lineClassifierUrl: string;
+  lineClassifierKey: string;
+  lineClassifierModel: string;
   wsAuth: boolean;
   antigravitySensitiveWords: string[];
   devinSensitiveWords: string[];
@@ -194,6 +198,7 @@ export const DEFAULT_VISUAL_VALUES: VisualConfigValues = {
   debug: false,
   commercialMode: false,
   loggingToFile: false,
+  requestLog: false,
   logsMaxTotalSizeMb: '',
   errorLogsMaxFiles: '',
   usageStatisticsEnabled: false,
@@ -224,6 +229,9 @@ export const DEFAULT_VISUAL_VALUES: VisualConfigValues = {
   routingStrategy: 'round-robin',
   routingSessionAffinity: false,
   routingSessionAffinityTTL: '',
+  lineClassifierUrl: '',
+  lineClassifierKey: '',
+  lineClassifierModel: '',
   wsAuth: true,
   antigravitySensitiveWords: [],
   devinSensitiveWords: [],

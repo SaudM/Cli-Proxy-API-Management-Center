@@ -1102,7 +1102,12 @@
         },
         "logging": {
           "title": "日誌與診斷",
-          "description": "除錯、日誌輸出與使用統計"
+          "description": "除錯、日誌輸出與使用統計",
+          "group_output": "日誌輸出",
+          "group_capacity": "日誌容量",
+          "group_commercial": "商業模式",
+          "group_usage": "使用統計",
+          "yaml_keys_hint": "（灰色小字為設定檔中的鍵名）"
         },
         "advanced": {
           "title": "進階與實驗",
@@ -1198,7 +1203,9 @@
           "antigravity_signature_cache": "啟用 Antigravity 簽名快取",
           "antigravity_signature_cache_desc": "優先使用並校驗快取的 thinking block 簽名",
           "antigravity_signature_strict": "嚴格校驗旁路簽名",
-          "antigravity_signature_strict_desc": "僅在關閉簽名快取時生效，按完整 Claude protobuf 樹校驗"
+          "antigravity_signature_strict_desc": "僅在關閉簽名快取時生效，按完整 Claude protobuf 樹校驗",
+          "request_log": "請求日誌",
+          "request_log_desc": "記錄每個請求與回應（含提示詞內容）。排查問題時開啟，用完即關。"
         },
         "headers": {
           "title": "Header 預設值",
@@ -1284,7 +1291,18 @@
           "credential_limits_active_hours_jitter_minutes": "作息邊界抖動（分鐘）",
           "credential_limits_active_hours_jitter_minutes_hint": "每個憑證每天的視窗邊界依穩定偏移在 ±N 分鐘內浮動，避免所有帳號同一秒上下線。",
           "credential_limits_limit_jitter_percent": "限額抖動（%）",
-          "credential_limits_limit_jitter_percent_hint": "每憑證的 rpm/tpm/rpd/tpd 依穩定偏移在 ±N%（最多 50）內縮放，避免所有帳號上限完全一樣。卡片顯示實際生效值。"
+          "credential_limits_limit_jitter_percent_hint": "每憑證的 rpm/tpm/rpd/tpd 依穩定偏移在 ±N%（最多 50）內縮放，避免所有帳號上限完全一樣。卡片顯示實際生效值。",
+          "line_classifier_url": "分類器 URL（OpenAI 相容，留空即關閉會話分類）",
+          "line_classifier_key": "分類器 API Key",
+          "line_classifier_model": "分類器模型 ID（如 deepseek-v4-flash）",
+          "line_classifier_note": "固定分類表與預設組在設定檔的 routing.line-classifier 中設定；修改分類表後需重啟容器才生效。",
+          "group_proxy_retry": "代理與重試",
+          "group_credentials": "憑證輪換與限額",
+          "group_routing": "路由與會話",
+          "group_classifier": "會話分類器",
+          "group_image": "圖像生成",
+          "group_misc": "相容與其他",
+          "yaml_keys_hint": "（灰色小字為設定檔中的鍵名）"
         },
         "quota": {
           "title": "配額回退",
