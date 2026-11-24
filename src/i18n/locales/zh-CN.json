@@ -1076,7 +1076,12 @@
         },
         "logging": {
           "title": "日志与诊断",
-          "description": "调试、日志输出与使用统计"
+          "description": "调试、日志输出与使用统计",
+          "group_output": "日志输出",
+          "group_capacity": "日志容量",
+          "group_commercial": "商业模式",
+          "group_usage": "使用统计",
+          "yaml_keys_hint": "（灰色小字为配置文件中的键名）"
         },
         "advanced": {
           "title": "高级与实验",
@@ -1172,7 +1177,9 @@
           "antigravity_signature_cache": "启用 Antigravity 签名缓存",
           "antigravity_signature_cache_desc": "优先使用并校验缓存的 thinking block 签名",
           "antigravity_signature_strict": "严格校验旁路签名",
-          "antigravity_signature_strict_desc": "仅在关闭签名缓存时生效，按完整 Claude protobuf 树校验"
+          "antigravity_signature_strict_desc": "仅在关闭签名缓存时生效，按完整 Claude protobuf 树校验",
+          "request_log": "请求日志",
+          "request_log_desc": "记录每个请求与响应（含提示词内容）。排查问题时开启，用完即关。"
         },
         "headers": {
           "title": "Header 默认值",

@@ -1087,7 +1087,12 @@
         },
         "logging": {
           "title": "Логи и диагностика",
-          "description": "Отладка, вывод логов и статистика использования"
+          "description": "Отладка, вывод логов и статистика использования",
+          "group_output": "Вывод логов",
+          "group_capacity": "Объём логов",
+          "group_commercial": "Коммерческий режим",
+          "group_usage": "Статистика использования",
+          "yaml_keys_hint": "(серый текст — ключ в файле конфигурации)"
         },
         "advanced": {
           "title": "Дополнительно и эксперименты",
@@ -1183,7 +1188,9 @@
           "antigravity_signature_cache": "Включить кэш подписей Antigravity",
           "antigravity_signature_cache_desc": "Предпочитать и проверять кэшированные подписи thinking-блоков",
           "antigravity_signature_strict": "Строгая проверка bypass-подписи",
-          "antigravity_signature_strict_desc": "Применяется только при отключённом кэше подписей; проверяет полное дерево Claude protobuf"
+          "antigravity_signature_strict_desc": "Применяется только при отключённом кэше подписей; проверяет полное дерево Claude protobuf",
+          "request_log": "Журнал запросов",
+          "request_log_desc": "Логировать каждый запрос и ответ, включая текст промпта. Включайте только для отладки."
         },
         "headers": {
           "title": "Заголовки по умолчанию",

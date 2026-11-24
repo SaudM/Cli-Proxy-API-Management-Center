@@ -316,6 +316,13 @@ export const CONFIG_FIELD_SEARCH_INDEX: ConfigFieldSearchEntry[] = [
     yamlKeys: ['debug'],
   },
   {
+    fieldId: 'requestLog',
+    sectionId: 'logging',
+    labelKey: L('sections.system.request_log'),
+    hintKey: L('sections.system.request_log_desc'),
+    yamlKeys: ['request-log'],
+  },
+  {
     fieldId: 'commercialMode',
     sectionId: 'logging',
     labelKey: L('sections.system.commercial_mode'),
