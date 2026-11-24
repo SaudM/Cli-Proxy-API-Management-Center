@@ -1121,6 +1121,8 @@ function getNextDirtyFields(
       'pluginsEnabled',
       'passthroughHeaders',
       'disableCooling',
+      'saveCooldownStatus',
+      'maxRequestBodyBytes',
       'disableImageGeneration',
       'gptImage2BaseModel',
       'authAutoRefreshWorkers',
@@ -1424,6 +1426,12 @@ export function useVisualConfig() {
           'limit-jitter-percent'
         ),
         disableCooling: Boolean(parsed['disable-cooling']),
+        saveCooldownStatus: Boolean(parsed['save-cooldown-status']),
+        maxRequestBodyBytes:
+          typeof parsed['max-request-body-bytes'] === 'number' ||
+          typeof parsed['max-request-body-bytes'] === 'string'
+            ? String(parsed['max-request-body-bytes'])
+            : '',
         disableImageGeneration: parseDisableImageGenerationMode(parsed['disable-image-generation']),
         gptImage2BaseModel:
           typeof parsed['gpt-image-2-base-model'] === 'string'
@@ -1741,6 +1749,12 @@ export function useVisualConfig() {
         }
         if (dirtyFields.has('disableCooling')) {
           setBooleanInDoc(doc, ['disable-cooling'], values.disableCooling);
+        }
+        if (dirtyFields.has('saveCooldownStatus')) {
+          setBooleanInDoc(doc, ['save-cooldown-status'], values.saveCooldownStatus);
+        }
+        if (dirtyFields.has('maxRequestBodyBytes')) {
+          setIntFromStringInDoc(doc, ['max-request-body-bytes'], values.maxRequestBodyBytes);
         }
         if (dirtyFields.has('disableImageGeneration')) {
           setDisableImageGenerationInDoc(

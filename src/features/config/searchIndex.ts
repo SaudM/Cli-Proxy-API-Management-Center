@@ -316,6 +316,22 @@ export const CONFIG_FIELD_SEARCH_INDEX: ConfigFieldSearchEntry[] = [
     yamlKeys: ['debug'],
   },
   {
+    fieldId: 'saveCooldownStatus',
+    sectionId: 'network',
+    labelKey: L('sections.system.save_cooldown_status'),
+    hintKey: L('sections.system.save_cooldown_status_desc'),
+    yamlKeys: ['save-cooldown-status'],
+    keywords: ['cooldown', '冷却'],
+  },
+  {
+    fieldId: 'maxRequestBodyBytes',
+    sectionId: 'network',
+    labelKey: L('sections.system.max_request_body_bytes'),
+    hintKey: L('sections.system.max_request_body_bytes_desc'),
+    yamlKeys: ['max-request-body-bytes'],
+    keywords: ['body', 'limit', '请求体'],
+  },
+  {
     fieldId: 'requestLog',
     sectionId: 'logging',
     labelKey: L('sections.system.request_log'),

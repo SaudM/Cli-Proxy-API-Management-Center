@@ -131,3 +131,12 @@
     transition: none;
   }
 }
+
+/* The YAML key the field maps to, so users can search and verify by key name. */
+.searchResultYaml {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 11px;
+  opacity: 0.55;
+  margin-left: 8px;
+  white-space: nowrap;
+}

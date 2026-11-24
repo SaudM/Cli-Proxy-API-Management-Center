@@ -1205,7 +1205,11 @@
           "antigravity_signature_strict": "嚴格校驗旁路簽名",
           "antigravity_signature_strict_desc": "僅在關閉簽名快取時生效，按完整 Claude protobuf 樹校驗",
           "request_log": "請求日誌",
-          "request_log_desc": "記錄每個請求與回應（含提示詞內容）。排查問題時開啟，用完即關。"
+          "request_log_desc": "記錄每個請求與回應（含提示詞內容）。排查問題時開啟，用完即關。",
+          "save_cooldown_status": "持久化冷卻狀態",
+          "save_cooldown_status_desc": "重啟後保留帳號冷卻狀態，避免剛被限流的號立刻又被拿去用。",
+          "max_request_body_bytes": "最大請求體位元組數",
+          "max_request_body_bytes_desc": "0 = 不限。建議設上限防超大請求打爆記憶體，例如 67108864 = 64 MiB。"
         },
         "headers": {
           "title": "Header 預設值",

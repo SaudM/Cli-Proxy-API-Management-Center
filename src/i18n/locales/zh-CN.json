@@ -1179,7 +1179,11 @@
           "antigravity_signature_strict": "严格校验旁路签名",
           "antigravity_signature_strict_desc": "仅在关闭签名缓存时生效，按完整 Claude protobuf 树校验",
           "request_log": "请求日志",
-          "request_log_desc": "记录每个请求与响应（含提示词内容）。排查问题时开启，用完即关。"
+          "request_log_desc": "记录每个请求与响应（含提示词内容）。排查问题时开启，用完即关。",
+          "save_cooldown_status": "持久化冷却状态",
+          "save_cooldown_status_desc": "重启后保留账号冷却状态，避免刚被限流的号立刻又被拿去用。",
+          "max_request_body_bytes": "最大请求体字节数",
+          "max_request_body_bytes_desc": "0 = 不限。建议设上限防超大请求打爆内存，例如 67108864 = 64 MiB。"
         },
         "headers": {
           "title": "Header 默认值",

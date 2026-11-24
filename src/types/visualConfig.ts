@@ -140,6 +140,8 @@ export type VisualConfigValues = {
   credentialLimitsActiveHoursJitterMinutes: string;
   credentialLimitsLimitJitterPercent: string;
   disableCooling: boolean;
+  saveCooldownStatus: boolean;
+  maxRequestBodyBytes: string;
   disableImageGeneration: DisableImageGenerationMode;
   gptImage2BaseModel: string;
   authAutoRefreshWorkers: string;
@@ -220,6 +222,8 @@ export const DEFAULT_VISUAL_VALUES: VisualConfigValues = {
   credentialLimitsActiveHoursJitterMinutes: '',
   credentialLimitsLimitJitterPercent: '',
   disableCooling: false,
+  saveCooldownStatus: false,
+  maxRequestBodyBytes: '',
   disableImageGeneration: 'false',
   gptImage2BaseModel: '',
   authAutoRefreshWorkers: '',

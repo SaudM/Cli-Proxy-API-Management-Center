@@ -414,6 +414,18 @@ export function SectionNetwork({
                 onChange={(disableCooling) => onChange({ disableCooling })}
               />
             </FieldAnchor>
+            <FieldAnchor fieldId="saveCooldownStatus">
+              <div className={styles.key}>{keyOf('saveCooldownStatus')}</div>
+              <ToggleRow
+                title={t('config_management.visual.sections.system.save_cooldown_status')}
+                description={t(
+                  'config_management.visual.sections.system.save_cooldown_status_desc'
+                )}
+                checked={values.saveCooldownStatus}
+                disabled={disabled}
+                onChange={(saveCooldownStatus) => onChange({ saveCooldownStatus })}
+              />
+            </FieldAnchor>
           </FieldStack>
         </FieldGroup>
         <FieldGroup title={t('config_management.visual.sections.network.group_classifier')}>
@@ -515,6 +527,19 @@ export function SectionNetwork({
                 checked={values.wsAuth}
                 disabled={disabled}
                 onChange={(wsAuth) => onChange({ wsAuth })}
+              />
+            </FieldAnchor>
+            <FieldAnchor fieldId="maxRequestBodyBytes">
+              <div className={styles.key}>{keyOf('maxRequestBodyBytes')}</div>
+              <Input
+                label={t('config_management.visual.sections.system.max_request_body_bytes')}
+                type="number"
+                min={0}
+                placeholder="0"
+                value={values.maxRequestBodyBytes}
+                onChange={(e) => onChange({ maxRequestBodyBytes: e.target.value })}
+                disabled={disabled}
+                hint={t('config_management.visual.sections.system.max_request_body_bytes_desc')}
               />
             </FieldAnchor>
           </FieldStack>

@@ -1183,7 +1183,11 @@
           "antigravity_signature_strict": "Strict Bypass Signature Validation",
           "antigravity_signature_strict_desc": "Only applies when the signature cache is disabled; validates the full Claude protobuf tree",
           "request_log": "Request log",
-          "request_log_desc": "Log every request and response, including prompt content. Enable only while debugging."
+          "request_log_desc": "Log every request and response, including prompt content. Enable only while debugging.",
+          "save_cooldown_status": "Persist cooldown state",
+          "save_cooldown_status_desc": "Keep account cooldowns across restarts so a just-throttled account is not retried immediately.",
+          "max_request_body_bytes": "Max request body bytes",
+          "max_request_body_bytes_desc": "0 = unlimited. Set a cap (e.g. 67108864 = 64 MiB) to protect memory."
         },
         "headers": {
           "title": "Header Defaults",

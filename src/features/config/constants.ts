@@ -144,6 +144,8 @@ export const FIELD_VALUE_KEYS: Record<string, readonly string[]> = {
   forceModelPrefix: ['forceModelPrefix'],
   passthroughHeaders: ['passthroughHeaders'],
   disableCooling: ['disableCooling'],
+  saveCooldownStatus: ['saveCooldownStatus'],
+  maxRequestBodyBytes: ['maxRequestBodyBytes'],
   routingSessionAffinity: ['routingSessionAffinity'],
   wsAuth: ['wsAuth'],
   // ── logging ───────────────────────────────────────────────────────────────

@@ -161,6 +161,9 @@ export function ConfigSearch({ disabled = false, onJump }: ConfigSearchProps) {
                 <span className={styles.searchResultSection}>
                   {t(`config_management.visual.sections.${entry.sectionId}.title`)}
                 </span>
+                {entry.yamlKeys?.length ? (
+                  <span className={styles.searchResultYaml}>{entry.yamlKeys.join('.')}</span>
+                ) : null}
               </button>
             ))
           ) : (
