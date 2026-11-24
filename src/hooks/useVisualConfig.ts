@@ -1172,6 +1172,9 @@ function getNextDirtyFields(
       'routingStrategy',
       'routingSessionAffinity',
       'routingSessionAffinityTTL',
+      'lineClassifierUrl',
+      'lineClassifierKey',
+      'lineClassifierModel',
     ] as Array<keyof VisualConfigValues>
   ).forEach(updateScalarDirty);
 
@@ -1467,6 +1470,18 @@ export function useVisualConfig() {
               : typeof routing?.['sessionAffinityTTL'] === 'string'
                 ? routing['sessionAffinityTTL']
                 : '',
+        lineClassifierUrl:
+          typeof asRecord(routing?.['line-classifier'] ?? routing?.lineClassifier)?.url === 'string'
+            ? String(asRecord(routing?.['line-classifier'] ?? routing?.lineClassifier)?.url)
+            : '',
+        lineClassifierKey:
+          typeof asRecord(routing?.['line-classifier'] ?? routing?.lineClassifier)?.key === 'string'
+            ? String(asRecord(routing?.['line-classifier'] ?? routing?.lineClassifier)?.key)
+            : '',
+        lineClassifierModel:
+          typeof asRecord(routing?.['line-classifier'] ?? routing?.lineClassifier)?.model === 'string'
+            ? String(asRecord(routing?.['line-classifier'] ?? routing?.lineClassifier)?.model)
+            : '',
 
         payloadDefaultRules: parsePayloadRules(payload?.default),
         payloadDefaultRawRules: parseRawPayloadRules(payload?.['default-raw']),
@@ -1851,6 +1866,30 @@ export function useVisualConfig() {
             );
           }
           deleteIfMapEmpty(doc, ['routing']);
+        }
+
+        const lineClassifierDirty =
+          dirtyFields.has('lineClassifierUrl') ||
+          dirtyFields.has('lineClassifierKey') ||
+          dirtyFields.has('lineClassifierModel');
+        if (lineClassifierDirty) {
+          ensureMapInDoc(doc, ['routing', 'line-classifier']);
+          if (dirtyFields.has('lineClassifierUrl')) {
+            const url = values.lineClassifierUrl.trim();
+            if (url === '') doc.deleteIn(['routing', 'line-classifier', 'url']);
+            else setStringInDoc(doc, ['routing', 'line-classifier', 'url'], url);
+          }
+          if (dirtyFields.has('lineClassifierModel')) {
+            const model = values.lineClassifierModel.trim();
+            if (model === '') doc.deleteIn(['routing', 'line-classifier', 'model']);
+            else setStringInDoc(doc, ['routing', 'line-classifier', 'model'], model);
+          }
+          if (dirtyFields.has('lineClassifierKey')) {
+            const key = values.lineClassifierKey.trim();
+            if (key === '') doc.deleteIn(['routing', 'line-classifier', 'key']);
+            else setStringInDoc(doc, ['routing', 'line-classifier', 'key'], key);
+          }
+          deleteIfMapEmpty(doc, ['routing', 'line-classifier']);
         }
 
         const keepaliveSeconds =

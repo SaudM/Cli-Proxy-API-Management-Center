@@ -9,6 +9,7 @@ import { SectionCard } from '../SectionCard';
 import {
   FieldAnchor,
   FieldGrid,
+  FieldHint,
   FieldShell,
   FieldStack,
   ToggleRow,
@@ -348,6 +349,35 @@ export function SectionNetwork({
               disabled={disabled}
             />
           </FieldAnchor>
+          <FieldAnchor fieldId="lineClassifierUrl">
+            <Input
+              label={t('config_management.visual.sections.network.line_classifier_url')}
+              placeholder="https://api.example.com/v1"
+              value={values.lineClassifierUrl}
+              onChange={(e) => onChange({ lineClassifierUrl: e.target.value })}
+              disabled={disabled}
+            />
+          </FieldAnchor>
+          <FieldAnchor fieldId="lineClassifierModel">
+            <Input
+              label={t('config_management.visual.sections.network.line_classifier_model')}
+              placeholder="deepseek-v4-flash"
+              value={values.lineClassifierModel}
+              onChange={(e) => onChange({ lineClassifierModel: e.target.value })}
+              disabled={disabled}
+            />
+          </FieldAnchor>
+          <FieldAnchor fieldId="lineClassifierKey">
+            <Input
+              type="password"
+              label={t('config_management.visual.sections.network.line_classifier_key')}
+              placeholder={values.lineClassifierKey ? '••••••' : 'sk-...'}
+              value={values.lineClassifierKey}
+              onChange={(e) => onChange({ lineClassifierKey: e.target.value })}
+              disabled={disabled}
+            />
+          </FieldAnchor>
+          <FieldHint>{t('config_management.visual.sections.network.line_classifier_note')}</FieldHint>
         </FieldGrid>
 
         <FieldGrid>

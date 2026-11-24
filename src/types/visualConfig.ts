@@ -148,6 +148,9 @@ export type VisualConfigValues = {
   routingStrategy: RoutingStrategy;
   routingSessionAffinity: boolean;
   routingSessionAffinityTTL: string;
+  lineClassifierUrl: string;
+  lineClassifierKey: string;
+  lineClassifierModel: string;
   wsAuth: boolean;
   antigravitySensitiveWords: string[];
   devinSensitiveWords: string[];
@@ -224,6 +227,9 @@ export const DEFAULT_VISUAL_VALUES: VisualConfigValues = {
   routingStrategy: 'round-robin',
   routingSessionAffinity: false,
   routingSessionAffinityTTL: '',
+  lineClassifierUrl: '',
+  lineClassifierKey: '',
+  lineClassifierModel: '',
   wsAuth: true,
   antigravitySensitiveWords: [],
   devinSensitiveWords: [],

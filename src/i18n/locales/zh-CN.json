@@ -1258,7 +1258,11 @@
           "credential_limits_active_hours_jitter_minutes": "作息边界抖动（分钟）",
           "credential_limits_active_hours_jitter_minutes_hint": "每个凭证每天的窗口边界按稳定偏移在 ±N 分钟内浮动，避免所有账号同一秒上下线。",
           "credential_limits_limit_jitter_percent": "限额抖动（%）",
-          "credential_limits_limit_jitter_percent_hint": "每凭证的 rpm/tpm/rpd/tpd 按稳定偏移在 ±N%（最多 50）内缩放，避免所有账号上限完全一样。卡片显示实际生效值。"
+          "credential_limits_limit_jitter_percent_hint": "每凭证的 rpm/tpm/rpd/tpd 按稳定偏移在 ±N%（最多 50）内缩放，避免所有账号上限完全一样。卡片显示实际生效值。",
+          "line_classifier_url": "分类器 URL（OpenAI 兼容，留空即关闭会话分类）",
+          "line_classifier_key": "分类器 API Key",
+          "line_classifier_model": "分类器模型 ID（如 deepseek-v4-flash）",
+          "line_classifier_note": "固定分类表与默认组在配置文件的 routing.line-classifier 中设置；修改分类表后需重启容器生效。"
         },
         "quota": {
           "title": "配额回退",

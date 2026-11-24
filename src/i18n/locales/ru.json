@@ -1272,7 +1272,11 @@
           "credential_limits_active_hours_jitter_minutes": "Дрожание окна (минуты)",
           "credential_limits_active_hours_jitter_minutes_hint": "Сдвигает границы окна каждой записи на стабильное смещение в пределах ±N минут в день, чтобы записи не включались одновременно.",
           "credential_limits_limit_jitter_percent": "Дрожание лимитов (%)",
-          "credential_limits_limit_jitter_percent_hint": "Масштабирует rpm/tpm/rpd/tpd каждой записи на стабильное смещение в пределах ±N % (макс. 50), чтобы лимиты не совпадали. Карточки показывают фактическое значение."
+          "credential_limits_limit_jitter_percent_hint": "Масштабирует rpm/tpm/rpd/tpd каждой записи на стабильное смещение в пределах ±N % (макс. 50), чтобы лимиты не совпадали. Карточки показывают фактическое значение.",
+          "line_classifier_url": "URL классификатора (совместим с OpenAI; пусто — классификация выключена)",
+          "line_classifier_key": "API-ключ классификатора",
+          "line_classifier_model": "ID модели классификатора (напр. deepseek-v4-flash)",
+          "line_classifier_note": "Фиксированная таблица линий и линия по умолчанию задаются в routing.line-classifier в файле конфигурации; изменение таблицы требует перезапуска контейнера."
         },
         "quota": {
           "title": "Резерв по квоте",

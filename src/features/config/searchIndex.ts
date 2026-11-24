@@ -251,6 +251,28 @@ export const CONFIG_FIELD_SEARCH_INDEX: ConfigFieldSearchEntry[] = [
     yamlKeys: ['routing', 'session-affinity-ttl'],
   },
   {
+    fieldId: 'lineClassifierUrl',
+    sectionId: 'network',
+    labelKey: L('sections.network.line_classifier_url'),
+    hintKey: L('sections.network.line_classifier_note'),
+    yamlKeys: ['routing', 'line-classifier', 'url'],
+    keywords: ['classifier', '分类', 'url'],
+  },
+  {
+    fieldId: 'lineClassifierModel',
+    sectionId: 'network',
+    labelKey: L('sections.network.line_classifier_model'),
+    yamlKeys: ['routing', 'line-classifier', 'model'],
+    keywords: ['classifier', '分类', 'model'],
+  },
+  {
+    fieldId: 'lineClassifierKey',
+    sectionId: 'network',
+    labelKey: L('sections.network.line_classifier_key'),
+    yamlKeys: ['routing', 'line-classifier', 'key'],
+    keywords: ['classifier', '分类', 'key'],
+  },
+  {
     fieldId: 'forceModelPrefix',
     sectionId: 'network',
     labelKey: L('sections.network.force_model_prefix'),
