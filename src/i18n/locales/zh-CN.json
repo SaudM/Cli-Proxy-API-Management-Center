@@ -1262,7 +1262,13 @@
           "line_classifier_url": "分类器 URL（OpenAI 兼容，留空即关闭会话分类）",
           "line_classifier_key": "分类器 API Key",
           "line_classifier_model": "分类器模型 ID（如 deepseek-v4-flash）",
-          "line_classifier_note": "固定分类表与默认组在配置文件的 routing.line-classifier 中设置；修改分类表后需重启容器生效。"
+          "line_classifier_note": "固定分类表与默认组在配置文件的 routing.line-classifier 中设置；修改分类表后需重启容器生效。",
+          "group_proxy_retry": "代理与重试",
+          "group_credentials": "凭据轮换与限额",
+          "group_routing": "路由与会话",
+          "group_classifier": "会话分类器",
+          "group_image": "图像生成",
+          "group_misc": "兼容与其他"
         },
         "quota": {
           "title": "配额回退",

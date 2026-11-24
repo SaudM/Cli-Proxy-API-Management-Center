@@ -1288,7 +1288,13 @@
           "line_classifier_url": "分類器 URL（OpenAI 相容，留空即關閉會話分類）",
           "line_classifier_key": "分類器 API Key",
           "line_classifier_model": "分類器模型 ID（如 deepseek-v4-flash）",
-          "line_classifier_note": "固定分類表與預設組在設定檔的 routing.line-classifier 中設定；修改分類表後需重啟容器才生效。"
+          "line_classifier_note": "固定分類表與預設組在設定檔的 routing.line-classifier 中設定；修改分類表後需重啟容器才生效。",
+          "group_proxy_retry": "代理與重試",
+          "group_credentials": "憑證輪換與限額",
+          "group_routing": "路由與會話",
+          "group_classifier": "會話分類器",
+          "group_image": "圖像生成",
+          "group_misc": "相容與其他"
         },
         "quota": {
           "title": "配額回退",
