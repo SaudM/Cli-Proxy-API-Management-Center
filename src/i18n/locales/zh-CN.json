@@ -1268,7 +1268,8 @@
           "group_routing": "路由与会话",
           "group_classifier": "会话分类器",
           "group_image": "图像生成",
-          "group_misc": "兼容与其他"
+          "group_misc": "兼容与其他",
+          "yaml_keys_hint": "（灰色小字为配置文件中的键名）"
         },
         "quota": {
           "title": "配额回退",

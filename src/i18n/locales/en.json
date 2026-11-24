@@ -1273,7 +1273,8 @@
           "group_routing": "Routing & sessions",
           "group_classifier": "Session line classifier",
           "group_image": "Image generation",
-          "group_misc": "Compatibility & other"
+          "group_misc": "Compatibility & other",
+          "yaml_keys_hint": "(grey text is the config-file key)"
         },
         "quota": {
           "title": "Quota Fallback",

@@ -2,23 +2,34 @@ import { useId } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Input } from '@/components/ui/Input';
 import { Select } from '@/components/ui/Select';
-import { Collapsible } from '@/components/ui/Collapsible';
 import type { VisualConfigValues } from '@/types/visualConfig';
 import { CONFIG_TAB_ICONS, SECTION_INDEX_LABELS } from '../../constants';
 import type { ConfigSectionProps } from '../../types';
 import { SectionCard } from '../SectionCard';
 import {
   FieldAnchor,
-  FieldGrid,
+  FieldGroup,
   FieldHint,
   FieldShell,
   FieldStack,
   ToggleRow,
 } from '../fields/FieldPrimitives';
+import { CONFIG_FIELD_SEARCH_INDEX } from '../../searchIndex';
+import styles from './SectionNetwork.module.scss';
 import { ProxyUrlField, SponsorHintSpacer } from '../fields/sharedFields';
 import { getValidationMessage } from '../blocks/shared';
 
 const Icon = CONFIG_TAB_ICONS.network;
+
+// YAML key for a field id, derived from the search index (single source of truth),
+// e.g. routingStrategy -> "routing.strategy". Shown above each field.
+const YAML_KEY_BY_FIELD: Record<string, string> = Object.fromEntries(
+  CONFIG_FIELD_SEARCH_INDEX.filter((entry) => entry.sectionId === 'network').map((entry) => [
+    entry.fieldId,
+    (entry.yamlKeys ?? []).join('.'),
+  ])
+);
+const keyOf = (fieldId: string): string => YAML_KEY_BY_FIELD[fieldId] ?? '';
 
 /** 02 网络配置：代理、重试、路由策略、图像生成开关与网络行为开关。 */
 export function SectionNetwork({
@@ -82,14 +93,23 @@ export function SectionNetwork({
       indexLabel={SECTION_INDEX_LABELS.network}
       icon={<Icon size={16} />}
       title={t('config_management.visual.sections.network.title')}
-      description={t('config_management.visual.sections.network.description')}
+      description={
+        <>
+          {t('config_management.visual.sections.network.description')}{' '}
+          <span className={styles.keyHint}>
+            {t('config_management.visual.sections.network.yaml_keys_hint')}
+          </span>
+        </>
+      }
       animateIn={animateIn}
     >
-      <FieldStack>
-        <Collapsible label={t('config_management.visual.sections.network.group_proxy_retry')} defaultOpen>
-          <FieldGrid>
+      <div className={styles.columns}>
+        <FieldGroup title={t('config_management.visual.sections.network.group_proxy_retry')}>
+          <FieldStack>
+            <div className={styles.key}>proxy-url</div>
             <ProxyUrlField values={values} disabled={disabled} onChange={onChange} />
             <FieldAnchor fieldId="requestRetry">
+              <div className={styles.key}>{keyOf('requestRetry')}</div>
               <Input
                 label={t('config_management.visual.sections.network.request_retry')}
                 topExtra={<SponsorHintSpacer />}
@@ -102,6 +122,7 @@ export function SectionNetwork({
               />
             </FieldAnchor>
             <FieldAnchor fieldId="maxRetryCredentials">
+              <div className={styles.key}>{keyOf('maxRetryCredentials')}</div>
               <Input
                 label={t('config_management.visual.sections.network.max_retry_credentials')}
                 topExtra={<SponsorHintSpacer />}
@@ -115,6 +136,7 @@ export function SectionNetwork({
               />
             </FieldAnchor>
             <FieldAnchor fieldId="maxRetryInterval">
+              <div className={styles.key}>{keyOf('maxRetryInterval')}</div>
               <Input
                 label={t('config_management.visual.sections.network.max_retry_interval')}
                 type="number"
@@ -126,11 +148,12 @@ export function SectionNetwork({
                 error={maxRetryIntervalError}
               />
             </FieldAnchor>
-          </FieldGrid>
-        </Collapsible>
-        <Collapsible label={t('config_management.visual.sections.network.group_credentials')}>
-          <FieldGrid>
+          </FieldStack>
+        </FieldGroup>
+        <FieldGroup title={t('config_management.visual.sections.network.group_credentials')}>
+          <FieldStack>
             <FieldAnchor fieldId="authAutoRefreshWorkers">
+              <div className={styles.key}>{keyOf('authAutoRefreshWorkers')}</div>
               <Input
                 label={t('config_management.visual.sections.network.auth_auto_refresh_workers')}
                 type="number"
@@ -143,6 +166,7 @@ export function SectionNetwork({
               />
             </FieldAnchor>
             <FieldAnchor fieldId="credentialLimitsRpm">
+              <div className={styles.key}>{keyOf('credentialLimitsRpm')}</div>
               <Input
                 label={t('config_management.visual.sections.network.credential_limits_rpm')}
                 type="number"
@@ -156,6 +180,7 @@ export function SectionNetwork({
               />
             </FieldAnchor>
             <FieldAnchor fieldId="credentialLimitsTpm">
+              <div className={styles.key}>{keyOf('credentialLimitsTpm')}</div>
               <Input
                 label={t('config_management.visual.sections.network.credential_limits_tpm')}
                 type="number"
@@ -169,6 +194,7 @@ export function SectionNetwork({
               />
             </FieldAnchor>
             <FieldAnchor fieldId="credentialLimitsMaxConcurrent">
+              <div className={styles.key}>{keyOf('credentialLimitsMaxConcurrent')}</div>
               <Input
                 label={t(
                   'config_management.visual.sections.network.credential_limits_max_concurrent'
@@ -186,6 +212,7 @@ export function SectionNetwork({
               />
             </FieldAnchor>
             <FieldAnchor fieldId="credentialLimitsRpd">
+              <div className={styles.key}>{keyOf('credentialLimitsRpd')}</div>
               <Input
                 label={t('config_management.visual.sections.network.credential_limits_rpd')}
                 type="number"
@@ -199,6 +226,7 @@ export function SectionNetwork({
               />
             </FieldAnchor>
             <FieldAnchor fieldId="credentialLimitsTpd">
+              <div className={styles.key}>{keyOf('credentialLimitsTpd')}</div>
               <Input
                 label={t('config_management.visual.sections.network.credential_limits_tpd')}
                 type="number"
@@ -212,59 +240,86 @@ export function SectionNetwork({
               />
             </FieldAnchor>
             <FieldAnchor fieldId="credentialLimitsMaxSessions">
+              <div className={styles.key}>{keyOf('credentialLimitsMaxSessions')}</div>
               <Input
-                label={t('config_management.visual.sections.network.credential_limits_max_sessions')}
+                label={t(
+                  'config_management.visual.sections.network.credential_limits_max_sessions'
+                )}
                 type="number"
                 min={0}
                 placeholder="6"
                 value={values.credentialLimitsMaxSessions}
                 onChange={(e) => onChange({ credentialLimitsMaxSessions: e.target.value })}
                 disabled={disabled}
-                hint={t('config_management.visual.sections.network.credential_limits_max_sessions_hint')}
+                hint={t(
+                  'config_management.visual.sections.network.credential_limits_max_sessions_hint'
+                )}
                 error={shapeFieldError('credentialLimitsMaxSessions')}
               />
             </FieldAnchor>
             <FieldAnchor fieldId="credentialLimitsSessionWindowMinutes">
+              <div className={styles.key}>{keyOf('credentialLimitsSessionWindowMinutes')}</div>
               <Input
-                label={t('config_management.visual.sections.network.credential_limits_session_window_minutes')}
+                label={t(
+                  'config_management.visual.sections.network.credential_limits_session_window_minutes'
+                )}
                 type="number"
                 min={0}
                 placeholder="15"
                 value={values.credentialLimitsSessionWindowMinutes}
                 onChange={(e) => onChange({ credentialLimitsSessionWindowMinutes: e.target.value })}
                 disabled={disabled}
-                hint={t('config_management.visual.sections.network.credential_limits_session_window_minutes_hint')}
+                hint={t(
+                  'config_management.visual.sections.network.credential_limits_session_window_minutes_hint'
+                )}
                 error={shapeFieldError('credentialLimitsSessionWindowMinutes')}
               />
             </FieldAnchor>
             <FieldAnchor fieldId="credentialLimitsActiveHours">
+              <div className={styles.key}>{keyOf('credentialLimitsActiveHours')}</div>
               <Input
-                label={t('config_management.visual.sections.network.credential_limits_active_hours')}
+                label={t(
+                  'config_management.visual.sections.network.credential_limits_active_hours'
+                )}
                 type="text"
-                placeholder={t('config_management.visual.sections.network.credential_limits_active_hours_placeholder')}
+                placeholder={t(
+                  'config_management.visual.sections.network.credential_limits_active_hours_placeholder'
+                )}
                 value={values.credentialLimitsActiveHours}
                 onChange={(e) => onChange({ credentialLimitsActiveHours: e.target.value })}
                 disabled={disabled}
-                hint={t('config_management.visual.sections.network.credential_limits_active_hours_hint')}
+                hint={t(
+                  'config_management.visual.sections.network.credential_limits_active_hours_hint'
+                )}
                 error={shapeFieldError('credentialLimitsActiveHours')}
               />
             </FieldAnchor>
             <FieldAnchor fieldId="credentialLimitsActiveHoursJitterMinutes">
+              <div className={styles.key}>{keyOf('credentialLimitsActiveHoursJitterMinutes')}</div>
               <Input
-                label={t('config_management.visual.sections.network.credential_limits_active_hours_jitter_minutes')}
+                label={t(
+                  'config_management.visual.sections.network.credential_limits_active_hours_jitter_minutes'
+                )}
                 type="number"
                 min={0}
                 placeholder="45"
                 value={values.credentialLimitsActiveHoursJitterMinutes}
-                onChange={(e) => onChange({ credentialLimitsActiveHoursJitterMinutes: e.target.value })}
+                onChange={(e) =>
+                  onChange({ credentialLimitsActiveHoursJitterMinutes: e.target.value })
+                }
                 disabled={disabled}
-                hint={t('config_management.visual.sections.network.credential_limits_active_hours_jitter_minutes_hint')}
+                hint={t(
+                  'config_management.visual.sections.network.credential_limits_active_hours_jitter_minutes_hint'
+                )}
                 error={shapeFieldError('credentialLimitsActiveHoursJitterMinutes')}
               />
             </FieldAnchor>
             <FieldAnchor fieldId="credentialLimitsLimitJitterPercent">
+              <div className={styles.key}>{keyOf('credentialLimitsLimitJitterPercent')}</div>
               <Input
-                label={t('config_management.visual.sections.network.credential_limits_limit_jitter_percent')}
+                label={t(
+                  'config_management.visual.sections.network.credential_limits_limit_jitter_percent'
+                )}
                 type="number"
                 min={0}
                 max={50}
@@ -272,15 +327,18 @@ export function SectionNetwork({
                 value={values.credentialLimitsLimitJitterPercent}
                 onChange={(e) => onChange({ credentialLimitsLimitJitterPercent: e.target.value })}
                 disabled={disabled}
-                hint={t('config_management.visual.sections.network.credential_limits_limit_jitter_percent_hint')}
+                hint={t(
+                  'config_management.visual.sections.network.credential_limits_limit_jitter_percent_hint'
+                )}
                 error={shapeFieldError('credentialLimitsLimitJitterPercent')}
               />
             </FieldAnchor>
-          </FieldGrid>
-        </Collapsible>
-        <Collapsible label={t('config_management.visual.sections.network.group_routing')} defaultOpen>
-          <FieldGrid>
+          </FieldStack>
+        </FieldGroup>
+        <FieldGroup title={t('config_management.visual.sections.network.group_routing')}>
+          <FieldStack>
             <FieldAnchor fieldId="routingStrategy">
+              <div className={styles.key}>{keyOf('routingStrategy')}</div>
               <FieldShell
                 label={t('config_management.visual.sections.network.routing_strategy')}
                 labelId={routingStrategyLabelId}
@@ -318,6 +376,7 @@ export function SectionNetwork({
               </FieldShell>
             </FieldAnchor>
             <FieldAnchor fieldId="routingSessionAffinity">
+              <div className={styles.key}>{keyOf('routingSessionAffinity')}</div>
               <ToggleRow
                 title={t('config_management.visual.sections.network.session_affinity')}
                 checked={values.routingSessionAffinity}
@@ -326,6 +385,7 @@ export function SectionNetwork({
               />
             </FieldAnchor>
             <FieldAnchor fieldId="routingSessionAffinityTTL">
+              <div className={styles.key}>{keyOf('routingSessionAffinityTTL')}</div>
               <Input
                 label={t('config_management.visual.sections.network.session_affinity_ttl')}
                 placeholder="1h"
@@ -335,6 +395,7 @@ export function SectionNetwork({
               />
             </FieldAnchor>
             <FieldAnchor fieldId="forceModelPrefix">
+              <div className={styles.key}>{keyOf('forceModelPrefix')}</div>
               <ToggleRow
                 title={t('config_management.visual.sections.network.force_model_prefix')}
                 description={t('config_management.visual.sections.network.force_model_prefix_desc')}
@@ -344,6 +405,7 @@ export function SectionNetwork({
               />
             </FieldAnchor>
             <FieldAnchor fieldId="disableCooling">
+              <div className={styles.key}>{keyOf('disableCooling')}</div>
               <ToggleRow
                 title={t('config_management.visual.sections.network.disable_cooling')}
                 description={t('config_management.visual.sections.network.disable_cooling_desc')}
@@ -352,11 +414,12 @@ export function SectionNetwork({
                 onChange={(disableCooling) => onChange({ disableCooling })}
               />
             </FieldAnchor>
-          </FieldGrid>
-        </Collapsible>
-        <Collapsible label={t('config_management.visual.sections.network.group_classifier')} defaultOpen>
-          <FieldGrid>
+          </FieldStack>
+        </FieldGroup>
+        <FieldGroup title={t('config_management.visual.sections.network.group_classifier')}>
+          <FieldStack>
             <FieldAnchor fieldId="lineClassifierUrl">
+              <div className={styles.key}>{keyOf('lineClassifierUrl')}</div>
               <Input
                 label={t('config_management.visual.sections.network.line_classifier_url')}
                 placeholder="https://api.example.com/v1"
@@ -366,6 +429,7 @@ export function SectionNetwork({
               />
             </FieldAnchor>
             <FieldAnchor fieldId="lineClassifierModel">
+              <div className={styles.key}>{keyOf('lineClassifierModel')}</div>
               <Input
                 label={t('config_management.visual.sections.network.line_classifier_model')}
                 placeholder="deepseek-v4-flash"
@@ -375,6 +439,7 @@ export function SectionNetwork({
               />
             </FieldAnchor>
             <FieldAnchor fieldId="lineClassifierKey">
+              <div className={styles.key}>{keyOf('lineClassifierKey')}</div>
               <Input
                 type="password"
                 label={t('config_management.visual.sections.network.line_classifier_key')}
@@ -384,12 +449,15 @@ export function SectionNetwork({
                 disabled={disabled}
               />
             </FieldAnchor>
-          </FieldGrid>
-          <FieldHint>{t('config_management.visual.sections.network.line_classifier_note')}</FieldHint>
-        </Collapsible>
-        <Collapsible label={t('config_management.visual.sections.network.group_image')}>
-          <FieldGrid>
+            <FieldHint>
+              {t('config_management.visual.sections.network.line_classifier_note')}
+            </FieldHint>
+          </FieldStack>
+        </FieldGroup>
+        <FieldGroup title={t('config_management.visual.sections.network.group_image')}>
+          <FieldStack>
             <FieldAnchor fieldId="disableImageGeneration">
+              <div className={styles.key}>{keyOf('disableImageGeneration')}</div>
               <FieldShell
                 label={t('config_management.visual.sections.network.disable_image_generation')}
                 labelId={disableImageGenerationLabelId}
@@ -413,6 +481,7 @@ export function SectionNetwork({
               </FieldShell>
             </FieldAnchor>
             <FieldAnchor fieldId="gptImage2BaseModel">
+              <div className={styles.key}>{keyOf('gptImage2BaseModel')}</div>
               <Input
                 label={t('config_management.visual.sections.network.gpt_image_2_base_model')}
                 placeholder="gpt-5.4-mini"
@@ -422,20 +491,24 @@ export function SectionNetwork({
                 hint={t('config_management.visual.sections.network.gpt_image_2_base_model_hint')}
               />
             </FieldAnchor>
-          </FieldGrid>
-        </Collapsible>
-        <Collapsible label={t('config_management.visual.sections.network.group_misc')}>
-          <FieldGrid>
+          </FieldStack>
+        </FieldGroup>
+        <FieldGroup title={t('config_management.visual.sections.network.group_misc')}>
+          <FieldStack>
             <FieldAnchor fieldId="passthroughHeaders">
+              <div className={styles.key}>{keyOf('passthroughHeaders')}</div>
               <ToggleRow
                 title={t('config_management.visual.sections.network.passthrough_headers')}
-                description={t('config_management.visual.sections.network.passthrough_headers_desc')}
+                description={t(
+                  'config_management.visual.sections.network.passthrough_headers_desc'
+                )}
                 checked={values.passthroughHeaders}
                 disabled={disabled}
                 onChange={(passthroughHeaders) => onChange({ passthroughHeaders })}
               />
             </FieldAnchor>
             <FieldAnchor fieldId="wsAuth">
+              <div className={styles.key}>{keyOf('wsAuth')}</div>
               <ToggleRow
                 title={t('config_management.visual.sections.network.ws_auth')}
                 description={t('config_management.visual.sections.network.ws_auth_desc')}
@@ -444,9 +517,9 @@ export function SectionNetwork({
                 onChange={(wsAuth) => onChange({ wsAuth })}
               />
             </FieldAnchor>
-          </FieldGrid>
-        </Collapsible>
-      </FieldStack>
+          </FieldStack>
+        </FieldGroup>
+      </div>
     </SectionCard>
   );
 }
